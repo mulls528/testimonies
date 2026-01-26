@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stories</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #e8e8e8;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            padding: 40px 40px;
+        }
+
+        .audio-list {
+            list-style: none;
+        }
+
+        .audio-item {
+            padding: 40px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            text-align: left;
+        }
+
+        .audio-item:hover {
+            opacity: 0.6;
+        }
+
+        .audio-item.playing {
+            opacity: 0.6;
+        }
+
+        .track-info {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .track-name {
+            font-size: 5.85rem;
+            font-weight: 700;
+            color: #333;
+            line-height: 0.945;
+            max-width: 75%;
+        }
+
+
+        .duration-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #888;
+            white-space: nowrap;
+        }
+
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #ccc;
+            border-radius: 3px;
+            margin-top: 30px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .audio-item.playing .progress-container {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #888;
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        .time-display {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #666;
+            margin-top: 8px;
+            display: none;
+            text-align: right;
+        }
+
+        .audio-item.playing .time-display {
+            display: block;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #e8e8e8;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #bbb;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <ul class="audio-list" id="audioList"></ul>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        const audioFiles = [
+            "ANABELLE Loved Squirrels, Not the Basement.mp3",
+            "ASHLEY on the Healing Work of Humor.mp3",
+            "CARSON Looks Forward to the Table.mp3",
+            "CHELA Making Joy Complete.mp3",
+            "CONNOR Couldn't Find an Apartment.mp3",
+            "DAKOTA Read the Red Words.mp3",
+            "DOM Prayed For Ice Cream Money.mp3",
+            "DOM Was Spit on by a Giraffe.mp3",
+            "ELLA Reflects on Reverence.mp3",
+            "ERIC Was an Actor.mp3",
+            "FREDDY Told You So.mp3",
+            "HOLLAND Is Obsessed By the Way.mp3",
+            "JAMES on Daddy Longlegs.mp3",
+            "JEDEA Climbed a Hill.mp3",
+            "JOSH & the Dumpster Ladder.mp3",
+            "KEITHEN Consults Willard.mp3",
+            "LILLY's Mom Hears Nails Drop.mp3",
+            "OLIVIA on Suffering and Joy.mp3",
+            "PAOLO Didn't Write This Down.mp3",
+            "PERLA Asked God.mp3",
+            "RILEY Thinks It's Ironic.mp3",
+            "RILEY Would Also Freak Out In the Boat.mp3",
+            "ROUKAYA Can't Do Screaming.mp3",
+            "SAM Didn't Follow Instructions.mp3",
+            "SARYA Cracks Up Over the Big Fish.mp3",
+            "SAVANNA Still Laughs.mp3",
+            "SEAN Points to the Platypus.mp3",
+            "SERENA Winks Back.mp3",
+            "TINA Says 'huh' .mp3",
+            "YOHAAN Would Have Been Okay With a Boring Life .mp3"
+        ];
+
+        const audioList = document.getElementById('audioList');
+        const audioPlayer = document.getElementById('audioPlayer');
+        let currentlyPlaying = null;
+        const audioDurations = {};
+
+        // Format display name
+        function formatDisplayName(filename) {
+            const name = filename.replace('.mp3', '');
+            // Convert to lowercase, then capitalize first letter
+            const lowercase = name.toLowerCase();
+            return lowercase.charAt(0).toUpperCase() + lowercase.slice(1);
+        }
+
+        // Format time as mm:ss
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Preload durations for all audio files
+        function preloadDuration(file, element) {
+            const audio = new Audio(encodeURIComponent(file));
+            audio.addEventListener('loadedmetadata', () => {
+                audioDurations[file] = audio.duration;
+                element.querySelector('.duration-display').textContent = formatTime(audio.duration);
+            });
+        }
+
+        // Create list items
+        audioFiles.forEach((file, index) => {
+            const li = document.createElement('li');
+            li.className = 'audio-item';
+            li.dataset.file = file;
+            li.dataset.index = index;
+
+            li.innerHTML = `
+                <div class="track-info">
+                    <span class="track-name">${formatDisplayName(file)}</span>
+                    <span class="duration-display">--:--</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="time-display">
+                    <span class="current-time">0:00</span> / <span class="total-time">0:00</span>
+                </div>
+            `;
+
+            li.addEventListener('click', (e) => {
+                if (!e.target.closest('.progress-container')) {
+                    togglePlay(li, file);
+                }
+            });
+
+            audioList.appendChild(li);
+
+            // Preload duration
+            preloadDuration(file, li);
+        });
+
+        function togglePlay(element, file) {
+            if (currentlyPlaying === element) {
+                // Toggle pause/play on same track
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                } else {
+                    audioPlayer.pause();
+                }
+            } else {
+                // Stop current track if any
+                if (currentlyPlaying) {
+                    currentlyPlaying.classList.remove('playing');
+                    currentlyPlaying.querySelector('.progress-bar').style.width = '0%';
+                }
+
+                // Play new track
+                audioPlayer.src = encodeURIComponent(file);
+                audioPlayer.play();
+                element.classList.add('playing');
+                currentlyPlaying = element;
+            }
+        }
+
+        // Update progress bar
+        audioPlayer.addEventListener('timeupdate', () => {
+            if (currentlyPlaying) {
+                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                currentlyPlaying.querySelector('.progress-bar').style.width = progress + '%';
+                currentlyPlaying.querySelector('.current-time').textContent = formatTime(audioPlayer.currentTime);
+            }
+        });
+
+        // Update duration when loaded
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            if (currentlyPlaying) {
+                currentlyPlaying.querySelector('.total-time').textContent = formatTime(audioPlayer.duration);
+            }
+        });
+
+        // Handle track end
+        audioPlayer.addEventListener('ended', () => {
+            if (currentlyPlaying) {
+                currentlyPlaying.querySelector('.progress-bar').style.width = '0%';
+            }
+        });
+
+        // Allow clicking on progress bar to seek
+        document.addEventListener('click', (e) => {
+            const progressContainer = e.target.closest('.progress-container');
+            if (progressContainer && progressContainer.closest('.audio-item') === currentlyPlaying) {
+                e.stopPropagation();
+                const rect = progressContainer.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audioPlayer.currentTime = percent * audioPlayer.duration;
+            }
+        });
+
+    </script>
+</body>
+</html>
