@@ -73,6 +73,10 @@
             display: none;
         }
 
+        .hide-all-durations .duration-display {
+            display: none;
+        }
+
 
         .progress-container {
             width: 60%;
@@ -227,6 +231,39 @@
             60% { opacity: 1; }
             100% { opacity: 0; }
         }
+
+        /* Transcript panel */
+        .transcript-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 36vw;
+            height: 100vh;
+            padding: 120px 40px 40px 40px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .transcript-panel.visible {
+            display: block;
+        }
+
+        .transcript-panel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .transcript-panel {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .transcript-panel p {
+            font-size: 1.337rem;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.35;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
@@ -241,6 +278,10 @@
 
     <div class="container">
         <ul class="audio-list" id="audioList"></ul>
+    </div>
+
+    <div class="transcript-panel" id="transcriptPanel">
+        <p id="transcriptText"></p>
     </div>
 
     <audio id="audioPlayer"></audio>
@@ -300,7 +341,7 @@
             result = result.replace(/\bwillard\b/g, 'Willard');
             result = result.replace(/\bgod\b/g, 'God');
             // Prevent orphaned single word on last line (except "Keithen consults Willard")
-            if (result !== 'Keithen consults Willard') {
+            if (result !== 'Keithen consults Willard' && result !== 'Anabelle loved squirrels, not the basement') {
                 const words = result.split(' ');
                 if (words.length >= 3) {
                     return words.slice(0, -2).join(' ') + ' ' + words.slice(-2).join('\u00A0');
@@ -395,16 +436,21 @@
                 audioPlayer.play();
                 element.classList.add('playing');
                 currentlyPlaying = element;
+                audioList.classList.add('hide-all-durations');
             }
         }
 
         // Update play/pause button state
         audioPlayer.addEventListener('play', () => {
             if (currentlyPlaying) currentlyPlaying.classList.remove('paused');
+            audioList.classList.add('hide-all-durations');
+            transcriptPanel.classList.add('visible');
         });
 
         audioPlayer.addEventListener('pause', () => {
             if (currentlyPlaying) currentlyPlaying.classList.add('paused');
+            audioList.classList.remove('hide-all-durations');
+            transcriptPanel.classList.remove('visible');
         });
 
         // Update progress bar
@@ -427,6 +473,7 @@
         audioPlayer.addEventListener('ended', () => {
             if (currentlyPlaying) {
                 currentlyPlaying.querySelector('.progress-bar').style.width = '0%';
+                audioList.classList.remove('hide-all-durations');
             }
         });
 
@@ -465,6 +512,530 @@
 
         window.addEventListener('scroll', updateFadeOnScroll);
         updateFadeOnScroll();
+
+        // Transcript panel
+        const transcriptPanel = document.getElementById('transcriptPanel');
+        const transcriptText = document.getElementById('transcriptText');
+        let transcriptBlocks = [];
+        let totalWordsShown = 0;
+
+
+        // Embedded timestamped transcripts keyed by first name
+        const transcripts = {
+    'ANABELLE': [
+        {t: 0, text: `God has been a huge part of my life. Ever since I can remember, he has dealt with my skepticism. As a kid, I'd ask questions about my surroundings and as a teen, I'd ask about moral dilemmas. Each time I truly believed it was God answering those questions. Once I was about five or six years old and I was going through my ‘Why?’ phase, we were outside in the snow and I was in this never ending loop about these squirrels`},
+        {t: 27.933, text: `I kept seeing disappear into this hole in the snow. And I asked my mom, like, “Where are the squirrels going? Why won't they come out and play?” My mom always answered my questions with, “That's a good question. We should go read about it.” Which was a great answer to keep me quiet since we only went to the library once a week.`},
+        {t: 46.233, text: `I ended up forgetting about the squirrels, and one day my mom was doing the laundry in the basement that I thought was so scary. I was so terrified when she asked me to come downstairs. I begrudgingly went down and she brought me up to see the ground window where you could see a bunch of squirrels in this hole covered in the snow.`},
+        {t: 68, text: `At the time, I just thought it was cool. But now that I'm older, I can definitely see how God can be humorous at any age.`},
+    ],
+    'ASHLEY': [
+        {t: 0, text: `So Jesus is the representation of God, exact image of his person. And throughout Jesus's life, we see him spending time with children. We see him spending time with people who are culturally called sinners.`},
+        {t: 19.767, text: `And we see him connecting with`},
+        {t: 22.9, text: `such diverse groups of people from cultural outcasts and people who did not abide by religion to religious elites like Nicodemus.`},
+        {t: 38.567, text: `Yeah, I mean, kids don't like people who don't have a sense of humor.`},
+        {t: 43.8, text: `Humor being such a disarming and kind of equalizing thing and wow, it's a very, very high chance that Jesus was a funny guy.`},
+        {t: 56, text: `second thought I had is,`},
+        {t: 57.867, text: `how universal and wonderful humor is. That is actually healing to our bodies. It has the power to, like, shift our mood probably faster than anything else. To go from a place of sadness or discouragement or even anger or strife can bring people into peace and even a sense of, like, unity.`},
+        {t: 91.167, text: `Yeah, humor is a healing thing. It's a unifying thing. It's a disarming thing. It's fundamental to how we thrive as humans and so, yeah, I just think being made in the image of God, we must be made in the image of a God who has a sense of humor.`},
+    ],
+    'CARSON': [
+        {t: 0, text: `Wonder inspires humor. When someone is just shell shocked and lost in wonder, they can't help but laugh. Like that kind of laugh that kinda sneaks out of someone when they're just surprised by joy.`},
+        {t: 16.2, text: `I just think that is of God. He has created a beautiful world around us that's meant to leave our jaws on the floor. And the only thing that can escape us is just awe and wonder and laughter. And thankfully, he has given humans the ability to create and have creativity. Not be God, but to live out creativity like God.`},
+        {t: 42.6, text: `I firmly believe he's honored when people create something, whether it's, you know, a building or a standup comedy set that makes people just drop their jaw, like, ‘that's amazing.’ Recently I heard someone say when someone found something funny, they don't laugh. They say, ‘That's funny.’ And some people may find that weird, but I think that's just admiration on display.`},
+        {t: 69.967, text: `I believe the greatest picture of heaven, of what it's going to be like face to face with Jesus. Eternity with Jesus is just the table of communal dining with friends and every dinner party or dinner or just great lunch out I've ever had has included laughing and people being their honest selves. I walk away`},
+        {t: 99.633, text: `and my soul is stirred and filled in a way that I can't explain except that God has designed us for community. God has designed us for telling jokes and making.-- uh yeah, telling jokes, making jokes and laughing together. And so community just inspires laughter and humor. And it points to the great banquet table in heaven that Jesus died and rose again so we can experience the fullness of joy and laughter.`},
+        {t: 130.6, text: `So does God have a sense of humor? I truly believe He does.`},
+    ],
+    'CHELA': [
+        {t: 0, text: `So, of course, we know that the first time we're introduced to laughter is Genesis 17.`},
+        {t: 9.967, text: `The Lord is talking about Isaac's birth and that He will be named ‘Laughter’.`},
+        {t: 16.233, text: `The beautiful thing is Abraham's reaction to being told that he is going to have a child when he's 100. So, Genesis 17:17,`},
+        {t: 32.667, text: `“Abraham fell on his face and laughed and said to to himself, ‘Shall a child be born to make man who is 100 years old?`},
+        {t: 41.5, text: `Shall Sarah, who is 90 years old, bear child? And Abraham said to God, ‘Oh that all that Ishmael might live before you.’ God said, ‘No, But Sarah, your wife, shall bear you a son, and you shall call him Isaac.’`},
+        {t: 56.4, text: `God presents him with: I'm going to bless Sarah with a`},
+        {t: 61.767, text: `You shall name him Isaac. And his reaction is falling to his face in laughter, then rejecting it by saying, no, Ishmael is going to be my only son.`},
+        {t: 74.8, text: `But the Lord doubled down and says, ‘No, you will have a child.’ And so`},
+        {t: 81.433, text: `verse nine, “They said to him, ‘Where is Sarah, your wife?’ And he said, ‘She's in the tent.’`},
+        {t: 87.9, text: `The Lord said, ‘I will surely return to you about this time next year. Sarah, your wife, shall have a son.’ And Sarah was listening at the tent door behind him.`},
+        {t: 98.533, text: `Abraham and Sarah were old and advanced in years. The way of women had ceased to be with Sarah. Sarah laughed to herself, saying, ‘After I'm worn out and my Lord is old, shall I have a pleasure?’`},
+        {t: 111.533, text: `And the Lord said to Abraham, ‘Why did Sarah laugh and say, ’shall I indeed bear a child now that I am old?’ Is anything too hard for the Lord? But at the appointed time, I will return to you about this time next year, and Sarah shall have a son.’ But Sarah denied it, saying, ‘I did not laugh.’ for she was afraid.`},
+        {t: 134.167, text: `He said, ‘No, But you did laugh.’`},
+        {t: 136.7, text: `And Sarah said, ‘God has made laughter for me.’”`},
+        {t: 140.733, text: `humor in the Bible is presented and connected with the impossible.`},
+        {t: 146.633, text: `I think of my own life and the times I’ve said, ‘The Lord is funny’ is when I'm presented with the impossible.`},
+        {t: 154.5, text: `when I'm like, ‘There's no way the Lord can do this.’`},
+        {t: 158.2, text: `We end up coming to a resolve of laughing.`},
+        {t: 162.233, text: `We see that also in Proverbs 31:`},
+        {t: 167.633, text: `“Strength and dignity are her clothing, and she laughs at the time to come.”`},
+        {t: 175.233, text: `I find that very interesting,`},
+        {t: 176.933, text: `though. We're laughing at the things that are coming ahead because we do not know and we see as impossible. And she laughs about it because also there's the trust in the Lord with the plans ahead.`},
+        {t: 192.467, text: `Like I believe it's in Job where it even says,`},
+        {t: 195.167, text: `he will laugh, at disaster and famine. And I find that very interesting.`},
+        {t: 200.3, text: `We see no resolve, no way to come back from this in any way.`},
+        {t: 209.1, text: `The Lord finds His way because the Lord works in the impossible`},
+        {t: 213.3, text: `There's a humor in what we see as suffering because the Lord knows the plans He has for us. The Lord knows the way he can work in the impossible. And how are we to know the plans of the Lord? And I find that very beautiful, because in the New Testament, we're presented with the idea of becoming a new creation with Christ and being reconciled and therefore becoming a part of Christ.`},
+        {t: 248.233, text: `Our joy has been made complete because of it.`},
+        {t: 254.133, text: `Joy with Christ, endures hardship, endures pain and suffering. It holds us together. You know, just thinking about the way Elijah was so humorous with the prophets of Baal, just like ‘maybe your God is sleeping right now’, and to think like he was in such a vulnerable state.`},
+        {t: 287.433, text: `But his joy because he was with God, he was reconciled with God, He was able to to laugh in the face of adversity, to laugh in the face of terror. Because we know that his life was on the line. at the end of the day. There was fear around that still, but there was joy in that moment because the Lord was with him,`},
+        {t: 323.467, text: `this is from God who through Christ, reconciled us to himself and gave us a ministry of reconciliation that is in Christ. God was reconciling the world to himself and not counting their trespasses against them and entrusting to us`},
+        {t: 342.233, text: `the message of reconciliation.”`},
+        {t: 344.467, text: `If joy is being completed in Christ and if we are a new creation because of Christ, then joy is all around. Joy is from our Creator because we know we are made from the image of God. So we know God is a joyous God and He delights in joy and He delights to make our joy complete.`},
+        {t: 373.3, text: `But it is as a likeness of God.`},
+        {t: 375.767, text: `And so we also know that that laughter in the Bible is present at times when, you know, people were mocked people were looked down. Job’s saying that he's become a “laughingstock” to his friends. Joy and laughter have been abused.`},
+        {t: 396.933, text: `I mean, you see that in Luke 6 -- the double sided part of joy. You know, “woe to those who cry and they will soon laugh” and “Woe to those who laugh, they will weep.”`},
+        {t: 413.033, text: `We know that to make the joy complete, we have to follow into a likeness of Christ. And I know Philippians 2 continue to say like, avoid selfish conceit and hold others above yourself, consider others above yourself.`},
+        {t: 430.233, text: `I think of my own family, of how we love to laugh. My dad can laugh with his brothers so much, and it's with the most stupid joke jokes ever.`},
+        {t: 442.4, text: `But the way they laugh, you cannot help but join in their laughter. And to think that that part of them never changed when they became new creations. And I know that they used to laugh so much before they were united with Christ. And so that never changed. What changed is what they use their humor for.`},
+        {t: 466.767, text: `The Lord did not push down Sarah laughing.`},
+        {t: 470.233, text: `And so we know if we are humorous and we are made in his likeness, he is humorous. The question is: How are we using our humor?`},
+        {t: 482.4, text: `Are we making his joy complete?`},
+    ],
+    'CONNOR': [
+        {t: 0, text: `were in a one bedroom apartment, and we had just kind of outgrown it.`},
+        {t: 4.767, text: `And so we needed a two bedroom apartment and I was really stressing, trying to, you know, find that because she was working and she was busy and it was kind of my responsibility. We had a rough year before that`},
+        {t: 18.033, text: `And so`},
+        {t: 18.833, text: `you know, the first apartment we put a deposit on, we went to try and meet the people and they weren't there.`},
+        {t: 25.167, text: `The service wasn't great. And, you know, the doors was broken. It was a bunch of stuff. And so we ended up losing $700, $800 because of that. Um, then we wanted a apartment that was like two doors down. It was a two bedroom. It was perfect. It was in the same apartment complex, which we really liked, but we were going to have to spend like $1,000 to break the lease and we were gonna have to put a new security deposit down and all this stuff.`},
+        {t: 54.167, text: `And it didn't end up working out. And I was really stressed and frustrated about that because I just couldn't figure it out. And I had talked to my mom and I talked to my dad and I was arguing with my parents and it was this whole thing. And I came to this realization that, like, I'm trying to do this myself and I'm not trusting God to just guide me through this process.`},
+        {t: 85.867, text: `And so I remember, very vividly, praying for the next couple of days, just really locking in on my prayer and really asking God to to guide me through this and asking God to give me strength, to really just trust him in this process. And I was praying, I was praying and then I kind of came to this conclusion.`},
+        {t: 109.233, text: `I got this idea. I was like, “Hey, Kai, let's just go look at some apartments on Saturday.” And I told her I wanted to look at this one apartment called the Mason, and she was like, “I don't want to do it. Like, I don't like that apartment because we used to live in this area.” And she said she didn't like the apartment.`},
+        {t: 128.667, text: `And so that Saturday. We got up and we went to this apartment.`},
+        {t: 133.633, text: `And we really liked that apartment because it was above a Jinya and we really like`},
+        {t: 140.533, text: `There was a big line and we had to get on the schedule.`},
+        {t: 145.333, text: `And so we ended up scheduling some for like 2 hours later, right? So then we started heading towards another apartment. We called, and they didn't have an appointment till, you know, like a little bit after the appointment we had just set. And so I go, “Why don't we just go look at the mason, right? Like, why don't we just just take a look?`},
+        {t: 168.533, text: `It doesn't hurt. We don't have anything else to do.” And so we drove to the Mason and I remember turning in and Kai being like, “This is the Mason?” She was like, so confused as to like, why we were pulling in this parking lot. And I was like, “Yeah, this is the mason. I told you this.”`},
+        {t: 185.967, text: `“I know you said you didn't like it, but we can just take a look.” And she was like, “This wasn't the apartment that I was talking about.” And I was like, “What?” And she was like, “Yeah.” And so long story short, we go in there, we talk to the lady. The experience was amazing. We go look at apartment. That was amazing.`},
+        {t: 204.633, text: `They were willing to work with us on the dates and when we put a down payment down. The security deposit wasn't really that expensive`},
+        {t: 215.3, text: `and everything was working out. And I remember -- I think it was after we officially signed, I remember thinking back to the week before that where I was super stressed and I was kind of doing it by myself.`},
+        {t: 228.833, text: `And I remember thinking that God was just literally sitting, sitting somewhere, drinking sweet tea, laughing at me as I drove myself crazy and waiting for me to honestly use him. And it's funny because the apartment that Kai actually told me she didn't want is the one that God blessed us with.`},
+        {t: 252.7, text: `And so that's just one of the times where I feel like God showed us humor because I feel like sometimes God will allow you to drive yourself crazy and He'll let you do that so that you realize, like, you can't do it on your own.`},
+        {t: 267.167, text: `And at the end of all that, I feel like,`},
+        {t: 270.167, text: `you know, God and I were both able to kind of sit back and just laugh at how crazy I was driving myself.`},
+    ],
+    'DAKOTA': [
+        {t: 0, text: `God does have a sense of humor, for He is the best and greatest storyteller of all time, and to write great stories, one must know all the genres. As a Christian, we have the Bible and there are many, many, many instances,`},
+        {t: 24.833, text: `teachings, and stories that are quite humorous in the Bible.`},
+        {t: 30.967, text: `Some for complex reasons, some for simple wisdom reasons. For some reason, what comes up is like something that could seem really sad and devastating can also kind of be funny because we're also a little sick and twisted with our humor.`},
+        {t: 46.733, text: `When I first experienced God, it was in not in somebody sharing the gospel with me or a sermon, but it was through laughter. There is Scripture in Matthew chapter seven that talks about not worrying. And for some reason it struck me as humorous because if this Jesus guy is who he says he is, then 1) the implications of these words are true, but they're also pretty funny because he's God and he's one with the father and he's saying, Don't worry.`},
+        {t: 85.833, text: `Like what? By worrying, like, you can't even add a single hour to your life by worrying. And I just started chuckling at that and then Jesus goes to say,`},
+        {t: 96.567, text: `like, don't worry. Like about tomorrow for tomorrow has enough worries of its own, which is so cheeky.`},
+        {t: 106.2, text: `It's so cheeky because then if you get to tomorrow and you apply the same teaching, it's like, yeah, now I don't worry about tomorrow and then don't worry about tomorrow and then don't worry about -- it’s saying never to worry and then to say tomorrow's problems-- it's just, I don't know, it's wise and it’s cheeky and it's practical. And then the whole bit about God giving good gifts to his kids and then saying like, Man, what you hope your son asks for fish is going to give him a snake?`},
+        {t: 132.7, text: `And it was like that. Like there's this like humor interwoven in scripture. And just as everybody has a relationship -- like God is described like you talk to Moses as a friend and in the Christian tradition and faith, God is not just seen as this omnipresent being above everything, but also as someone we can talk to and walk with and delight with as a friend and friends have inside jokes and friends have bits and friends have like --`},
+        {t: 170.1, text: `They know each other's sense of humor, so they know what can make them laugh or cry. Yeah, and I think God is the exact same way. He can make us laugh and he can make his cry. He knows what makes us laugh, and he actually wants to -- as a good friend, you want to make your friends laugh like`},
+        {t: 186.067, text: `that's not just a delight for the friend. It's a delight for the person who's making them laugh. Whenever I am with my friends, I just want to make them laugh. And the good thing is that God's sense of humor is not at the expense of anybody. It is just good, joyful and funny.`},
+        {t: 205, text: `All I know is that God met me when I was smoking weed. And then that's what slowed me down to read the Bible. And my eyes went to the red words. And that's how God met me.`},
+    ],
+    'DOM': [
+        {t: 0, text: `If I view the world and I think things are like, funny, I just trust that, you know, that's part of my personality and there's ways that I can reflect The Lord in that. And like, even just laughing at little details or animals or funny situations that happen.`},
+        {t: 16.067, text: `I just believe that, like the Lord has a sense of humor. I think some of the interactions that Jesus has in the gospels, I'm sure he chuckled. Just like dealing with people can be funny sometimes,`},
+        {t: 31.767, text: `he had to just have some moments -- like when the disciples just didn't get it. Not even just frustration, but it's like, ‘Come on, guys.`},
+        {t: 41.4, text: `Like, please get it.’ I think when the boat is overflowing with fish, like after, they didn't catch anything and it's been “so hard”. And then the boat is sinking full of fish. Like, I'm sure that is a moment of humor. Um, also, even just thinking about God's creation and like, all of the little details and the ways that animals look like, some of them are just really funny.`},
+        {t: 69.733, text: `I think of like, I have this memory. When I was a kid of just like, this giant giraffe, like, spitting on me. And just giraffes look kind of funny too. And llamas and hedgehogs --`},
+        {t: 83.267, text: `One time I took care of goats for a summer, our friends had a farm, and goats are just really silly. Also, their pupils are square and that's just such an interesting detail. Like most animals have a round pupil, but a goat has a square one. And I don't know, I just think there's these details and these animals can be so funny.`},
+        {t: 101.633, text: `And I'm sure the Lord has intention in his design, but I think some of it might be silly.`},
+        {t: 107.833, text: `But then I think in my own life, ways that I've experienced the humor of God,`},
+        {t: 111.967, text: `I was just walking up the street. One time,`},
+        {t: 115.9, text: `End of the budget month, kind of sticking to the budget. And`},
+        {t: 120.1, text: `I,`},
+        {t: 120.8, text: `told Zach I was like,`},
+        {t: 122.7, text: `I wish the Lord`},
+        {t: 124.067, text: `would let us find --`},
+        {t: 125.1, text: `or we would just find money on the ground to get ice cream tonight. And I, like, walk ten feet ahead and I see money on the ground, so I like, run to pick it up. And it was a fake $1 million bill. And I was like, Oh, well, like, I think I like, prayed for money. And then I was like, You've got to be kidding me.`},
+        {t: 147.6, text: `Like, what are the chances that there is literally a fake like -- And it looked real. I had to look at and be like, ‘Wait, this is fake.’`},
+        {t: 155.4, text: `Because of the fall, like we have experienced laughing at someone else's expense or you know, being the butt of a joke, which is like, not from God, not good. But I think the joy that can come, like in a situation like, I can't imagine what it would have been like to be at, like, the wedding feast`},
+        {t: 173.5, text: `Cana in John 2. And Jesus, just like, making so much wine. Like, it just kept coming and thinking about, like, feeding, 5000 people and 4000 people, when they had nothing, what would that have been like? Like, I'm sure there would have been laughter. And that's not humor in the same way. But I think almost the sense of humor in being able to see the people's worries and know what you're going to do.`},
+    ],
+    'ELLA': [
+        {t: 0, text: `So anyways, back to the question at hand:`},
+        {t: 2.2, text: `Does God have a sense of humor? Absolutely. I think he does, but I don't think I relate to him in that way. Like I don't communicate to him in that way.`},
+        {t: 10.633, text: `This is my honest answer.`},
+        {t: 12.233, text: `so when I have a realization of like Jesus loved me so much that he did that I felt so, like, immediately felt very I don't really know if I have the word for it, but like, like reverent, like King Jesus, like it was like, it was When I so when I had that realization of like Jesus loved me so much that he did that I felt so, like, immediately felt very I don't really know if I have the word for it, but like, like reverent, like King Jesus, like it was like, it was When I had that realization of like Jesus loved me so much that he did that I felt so, like, immediately felt very I don't really know if I have the word for it, but like, like reverent, like King Jesus, like it was like, it was like, I don't know, serious quote unquote, like, just like, wow.`},
+        {t: 37.533, text: `Like really awe striking for me, but not awe striking in the way of like, ‘Jesus loves me so much’, But awe striking in the way of like, ‘this is a good and powerful and serious God to me’, like, you know. And also, I was a kid, I was young, and so he seemed like an adult to me also.`},
+        {t: 77.333, text: `it's -- maybe it's great to, you know, be respectful of adults and things,`},
+        {t: 80.267, text: `but I think it also stopped the intimacy of friendship, because I was so young.`},
+    ],
+    'ERIC': [
+        {t: 0, text: `When I was very young, um, I kind of figured out something -- when I was, like, six, seven, eight years old or something like that.`},
+        {t: 9.733, text: `Um, I figured out that laughter is a good gateway to get to know people. Right. LAUGHTER is something that brings people's guards down. It makes people feel comfortable. And once you make people laugh, then you can kind of just do anything. You can start any conversation, you can go anywhere in that aspect, right. So I would try to make people laugh when I was really young.`},
+        {t: 37.067, text: `And that's kind of where like a lot of my personally comes from now trying to make people laugh, knowing when I was young, how laughter kind of works in a psychological sense, right? Um, but when I was acting, when I first started acting, my main goal on stage was to make people laugh.`},
+        {t: 62.4, text: `A lot of people aren’t going to remember a lot of things that happened on stage because so much happens. You're doing a play for 2 hours or so and a lot goes on, right? So a lot of people aren’t going to remember what happens on stage, but people are going to remember what they laugh at and what they find funny.`},
+        {t: 83.467, text: `So I would always try to be memorable by making people laugh and trying to be funny. And I always just felt so full after hearing the audience laugh, whether that was like a short laugh or a super long extended laugh, just because I know that that laughter is making them forget about whatever happened in their day and they're just right there in that present moment, Right.`},
+        {t: 109.433, text: `I think the beautiful thing about laughter is that you have to be present. You have to be in that moment, you have to be present. And I think that goes right along with God's Word, where it says like, don't worry about tomorrow for today has its own worries. We don't even know if we have tomorrow.`},
+        {t: 125.8, text: `So just be present in this moment, in this current day. And I think laughter's the biggest thing that shows us that like we are present in Christ, we are present in this moment right now. So yeah, I think -- and like, laughter is to me is just parallel to joy.`},
+        {t: 145.167, text: `Like every time I feel super joyous, I just giggle and I just can't stop laughing. Um, and I think that's just like the Lord. Like, I think the Lord has the biggest sense of humor. I think He has the, the, the he he, I think he laughs the most at us. Like even moments that we might take very seriously and might just like, feel a lot of weight and a lot of pressure.`},
+        {t: 168.5, text: `I'm willing to bet a lot of money that he's just laughing, knowing, looking at us -- and not laughing in a mocking way or making fun of us, but just laughing and like, ‘oh, man, these are my children and I love them so much.’ And we give him so much joy as he gives us joy.`},
+    ],
+    'FREDDY': [
+        {t: 0, text: `There's something embedded in us as humans that`},
+        {t: 5.6, text: `it's in us.`},
+        {t: 7.533, text: `Like laughing is within us. And I think that's not just in a humor sense, but in a joyful sense. But but also in kind of a in other ways, too. But as far as like scripturally, I think,`},
+        {t: 22.367, text: `you know, the word laugh comes up quite a few times throughout scripture.`},
+        {t: 26.833, text: `And I believe there's someone in the Old Testament where their literal translation of their name is laughter. You'd have to cross reference that. But, you know, you look at Psalm, for example, there is a lot of references to laughter and laughing, and that's typically, I feel like in the face of evil and enemies.`},
+        {t: 50.967, text: `So maybe that's not necessarily humorous, But even in the New Testament, I feel like when you look at the way Jesus teaches, sometimes, I personally, this is maybe my own interpretation, but I feel like there are certain moments when he's teaching the crowds and teaching the parables and teaching, you know, and using metaphors. I feel like some of the things he says is very like, in that cultural context, like hyperbole, where I think I believe it would elicit some laughter from the crowds.`},
+        {t: 83.2, text: `And so I think there's that I think there's some playfulness there. I do personally think there is an element of playfulness just generally in our journeys walking with God. Um, the way I personally see that is, you know, one example is through parenting where like, you know, Archer sometimes will do something, even though I've warned him about the consequences or the potential`},
+        {t: 115.767, text: `thing that could hurt him or it's not a good idea if he does that and and I've warned him, but he still does it. And then I just can't help but laugh. Not in like a condescending way, but more in a way of like, ‘See, I told you.’ And so I feel like we have those moments where it's with God.`},
+        {t: 136.433, text: `But I would also I would also think like, you know, you look at Jesus in his life and you look at the I feel like he was always around parties. And, you know, I mean, obviously his first miracle was at a wedding. And I just can't help but think like when you look at the context that he's in, it's like, man, well, he was probably around some merriment and some laughter and some joy.`},
+        {t: 157.067, text: `And I think it would be silly to think that he took himself, like, way too seriously. I feel like he was humble enough to take not take himself too seriously. Yes, he knew he who he was and he walked confidently in who he was. But I feel like he was also a part of, you know, a part of these different gatherings and all these different situations.`},
+        {t: 181.1, text: `And then you even look at the way he talks to his disciples. Sometimes it almost is this comedic -- I would like to imagine that when he said, --oh, I believe it was to Peter, he said, ‘Get behind me, Satan.’ I wonder if some of the disciples laughed at that.`},
+        {t: 201.367, text: `And so you know, obviously a lot of what I'm saying is speculation. But, I do believe when you think about the joy in life, when you think about happiness, there's something that is very powerful about laughter. Right? And I think it also chemically does something to our brain.`},
+        {t: 225.433, text: `And I'd like to think that that was intentional. I like to think that that was, you know, specifically designed that way.`},
+    ],
+    'HOLLAND': [
+        {t: 0, text: `Off the bat? Yes. And there's many ways you could. -- I'm sure people have said man was created in his image. We have a sense of humor -- some of us. But I want to present a solid piece of evidence from one of my favorite books of the Bible, Esther.`},
+        {t: 18.833, text: `We have Esther, Mordecai, King Ahasuerus, and Haman.`},
+        {t: 26.3, text: `So Esther is now Queen.`},
+        {t: 28.733, text: `Her uncle? Cousin? Cousin. Her cousin Mordecai at one point saves the king. He hears that someone is going to plot to kill the king or quote unquote, “lay hands on him”, whatever the hell that means. And so he tells the king, however that happens and basically saves the king's life. All right, now, sit. Put that in your back pocket.`},
+        {t: 55.9, text: `Then Haman is the king's like ‘boy’. He loves Haman. He basically does whatever Haman says. Without question, Most of the time. And they're just like besties. He's his second in line. Whatever. Haman hates Mordecai because Haman really wants everybody to bow down to him and like, be obsessed with him. And he and Mordecai won't do that because he's like, “I'm not really down with worshiping anybody but God.”`},
+        {t: 88.733, text: `And so he's not obsessed with him like Haman wants him to be. So Haman is like, “I am going to kill this guy. Actually, I'm going to kill this guy and everybody else as well that is rocking with what he's rocking with.”`},
+        {t: 108.567, text: `He puts out an edict for that. Also, I might be getting my timeline mixed up, but at the same time, Haman's like, “and you know what? I'm going to get Mordecai’s ass specifically. I'm going to build a 50 foot gallows.`},
+        {t: 123.6, text: `to hang Mordecai on because I hate this guy so much.” And his wife's like, “That's such a great idea.”`},
+        {t: 131.6, text: `then one night, the king is like, “I can't sleep. Read me the books of things people did.” Which I should have, by the way, call that my Instagram story.`},
+        {t: 144.033, text: `Am I right? So they're reading him the book of things that people did. And Mordecai is on there for saving his life. And he was like, “Oh my God, what did we do for Mordecai after he literally saved my life?” And they were like, “Nothing.” And he was like, “Huh, we should do something. ” Then Haman walks in and he goes,`},
+        {t: 161.6, text: `“Haman, what would you do for someone that the King is, like, obsessed with?” And Heyman is like, “Well, first of all--” I actually don't know the specifics, but he's like, “I would put him on the King's Horse. I would give him the King's clothes, and then we would parade him around town saying, this is the man that the King loves a lot and is also obsessed with.”`},
+        {t: 183.633, text: `And he says all this, obviously, because he thinks he's talking about himself. He's like, ‘oh, my gosh, the king loves me so much. And so he's being all coy and seeing what I want to be done for me.’ This is Haman we're talking about. And so he tells him exactly what he wants done. And the king's like, “Period.`},
+        {t: 205.667, text: `Go do that for Mordecai.” Hilarious. Literally hilarious. He's in the midst of building this gallows to hang Mordecai on. And now he himself has to go parade Mordecai around town. Ok. Hilarious. Then what the real story is about, we've got Esther. And Esther is very courageous. She enters the King's quarters when she's not supposed to, when she could die.`},
+        {t: 233.033, text: `And she's like,`},
+        {t: 234.767, text: `“King, can we like -- can you come to dinner with me?” Because I'm thinking that her and the king didn't know each other too well. She's just really hot. And so she can't just pull up and be like, ‘also, can you, like, undo that edict? You just sent out?’ So she's like, “You and Haman come to dinner.” They go to dinner, things go great.`},
+        {t: 254.933, text: `that's when she drops the bomb of, “Hey, you're planning to kill all the Jews and I'm a Jew and it's just kind of like really messed up.`},
+        {t: 267.467, text: `And you really shouldn't do that.” And he’s like, “Oh, my God, whose idea was that?” And it was like, literally Haman's. So the king leaves the room. Haman is like, begging Esther, like, “Oh my gosh, please don't let me die.” And then the king comes back and he's like, “Oh, cool. So now you're trying to like, get with my shawty AND you're trying to destroy my kingdom.”`},
+        {t: 288.167, text: `So he's like, so pissed at Heyman. And then a little eunich girl, obsessed with her, by the way, goes, “Ooh, actually, Haman just built a 50 foot gallows. Like you should hang him on that.” Which is just like, funny, like, at the end of the day, I think it's just like irony,`},
+        {t: 306.933, text: `All of these paths did not need to cross and I think it's like sort of hilarious.`},
+    ],
+    'JAMES': [
+        {t: 0, text: `So I would say that God absolutely has a sense of humor. I think my life is a living proof of it. But I mean, I think myself and most people would say that humor is an inherently good thing. There's still a wonderful part of our lives. And I mean, everything goes is from God. So, I mean, just thinking about like a specific time where I see this and like, sometimes I'll be praying so hard over the long period of time for for an answer to something.`},
+        {t: 35.967, text: `And then I'll have like I mean, this was recent. I had a discipleship book that it was on my heart that I should start reading and I was procrastinating in and I kept putting it off. And then, I mean, what happens the moment I open it? The first page is the exact scripture that's been on my mind for that whole time.`},
+        {t: 55.667, text: `And the answer to everything I was I was praying about. So I always find that that funny. But it's and it's got pretty good good answers in those moments. But also I mean, with thinking about God's humor, I'm not sure who had this fun fact. I think it might have been Bethany, It might have been somebody else. But I keep thinking about how Daddy Longlegs are the most venomous spiders, but their mouths are too small to bite anyone.`},
+        {t: 86.3, text: `I mean, I find that absolutely hilarious. Yeah.`},
+    ],
+    'JEDEA': [
+        {t: 0, text: `Yes, I do believe God has a sense of humor. I've found myself in moments where I've climbed up a hill. I wasn't supposed to climb up, and he's kind of had to like, bring me down to earth. And I found myself after beating myself up, I found myself laughing at myself. And I feel like God always laughs with me in those moments.`},
+        {t: 24.233, text: `And I don't think I would have a sense of humor if he didn't have one. So, yes, I firmly believe he has a sense of humor.`},
+    ],
+    'JOSH': [
+        {t: 0, text: `Theologically, humor is good for the soul.`},
+        {t: 3.733, text: `God created good things. Laughter is from the Lord. And so, yeah, I do think God can be silly -- such an odd concept.`},
+        {t: 12.6, text: `Yeah. Because I think that's a form of delight and God is`},
+        {t: 17.7, text: `the God of delight`},
+        {t: 19.233, text: `and the God of fun and celebration and laughter. So he must have a sense of humor.`},
+        {t: 25.933, text: `I think I experience God's sense of humor`},
+        {t: 30.167, text: `most often through his cheeky provision, feels like type of like holy prankster, where, I don't know, like, not even physical things, but it's when I really need like a glimmer of hope in something, some part of my life. And I feel like God, just helps me turn my head to look and see something that, like, literally reminds me that he's there, that he's close.`},
+        {t: 64.433, text: `I'm walking down the street and I'm obsessed with ladders and I really wanted a ladder for a specific project and I look in the dumpster pile and then there's this one of a kind wooden attic ladder that I LOVED.`},
+        {t: 81.7, text: `I feel the Lord was like, ‘here's a little gift from me’. Yeah, I feel like God pranks me with those things, but, good prank. It's like, ‘oh,`},
+        {t: 92.8, text: `how did you do this? How did you manage this big surprise,’ type of thing?`},
+    ],
+    'KEITHEN': [
+    ],
+    'LILLY': [
+        {t: 0, text: `Well, first I'll say I do still think God has a sense of humor.`},
+        {t: 4.033, text: `Perhaps his sense of humor just wasn't included in the account, like in the Gospels, because that wasn't necessarily like the essence of, you know, the whole big picture and the story and what was going on. It's more of like a byproduct or something that just happens day to day. When I think about it this way, it's like we have so many stories of history that tell us all we need to know about world events from different perspectives, even people writing what they experienced firsthand, living through wars or`},
+        {t: 34.033, text: `Basically, we have different historical accounts from many different perspectives and many different authors. But I feel like rarely do we see, even in that case, the retelling of history that they experienced, including humor. I feel like it's often like the details of what happened, how it unfolded, where they were going, what Jesus was doing, what he was saying.`},
+        {t: 57.4, text: `And it's interesting because it's like, well, couldn't his humor have been included? But if I were to be retelling a story, trying to unfold a line of events, I don't think I would include a joke that someone made or something that shows my friend's sense of humor in an event that I was experiencing if I were to write something myself.`},
+        {t: 81.867, text: `Jesus is God in human form.`},
+        {t: 85.233, text: `And so when I see Jesus walking with his disciples,`},
+        {t: 88.9, text: `there's no shot -- also Jesus was a carpenter, like hanging out with a bunch of people, even, you know, sinners were inviting him to their table and to their homes because he was just fun to hang out with he was just a good person hang out with.`},
+        {t: 103.633, text: `And I think that's where religion, we lose it sometimes is because some religious people are like, ‘oh, this needs to be a serious thing.’ And of course it needs to be taken seriously. But also, Jesus was someone that many people loved to be around.`},
+        {t: 116.367, text: `And second thing, I think there's no shot. There wasn't a joke cracked or, you know, a sense of humor there for the way that he was,`},
+        {t: 126.733, text: `you know, admired. It's not like he was this big, famous person that everybody just wanted to eat with or wanted to hang out with. It was like a lot of people had disregard for him and still, regardless of the questions that were circulating during his time on earth, so many people, enjoyed spending time with him.`},
+        {t: 146.033, text: `It leads me to believe that the humor just wasn't included.`},
+        {t: 150.567, text: `culture and historical context`},
+        {t: 153.333, text: `gives a parameter for what humor can look like.`},
+        {t: 156.8, text: `one of my great friends, her name is Alex.`},
+        {t: 158.967, text: `She has the best sense of humor. She makes me laugh all of the time. Like, it's actually insane how funny she is. I think that that would have looked different if we were to be living in a different culture and a different time. Actually, I know that would have looked different. So maybe the way that we see laughter in the Bible was how humor was experienced.`},
+        {t: 178.433, text: `Even though laughter can exist without humor. Sure. But like,`},
+        {t: 182.433, text: `I think it just looks different now than it looked then.`},
+        {t: 186.233, text: `Basically, maybe as humans evolved, humor came about to produce laughter in a different way. A lot of times I feel like in the Bible we see laughter,`},
+        {t: 195.233, text: `It's like a crack to joke at something or like a stab at someone or, you know. Now we experience humor in a lot of different ways, including healthy ways, including derogatory ways. You know, I think it evolves.`},
+        {t: 208.2, text: `A year and a half ago I started going to Church of the City and I had heard everyone, like, ‘Oh yeah, I'm in a core group, I'm in a core group I'm in a core group.’ And I just had started and I know at every church there's new lingo, but I had been, you know, raised in the church my whole life.`},
+        {t: 225.8, text: `So I was like, ‘okay, it must just be some sort of group that they encourage here.’`},
+        {t: 230, text: `but I hadn't heard anything addressed about them`},
+        {t: 233.567, text: `in the sermons, and I wasn't too interested because I was going to a community group.`},
+        {t: 239.033, text: `I was making -- I was meeting new people like I was already getting plugged in as much as I needed to in that moment of joining -- of being, you know, consistently going to the church, that I was like, ‘okay, they're part of the core group.’ Cool. I wasn't really, like, curious. I didn't look it up or whatever.`},
+        {t: 252.333, text: `So then literally the next day after attending church for probably eight months and hearing no sermon on a core group, the whole entire sermon was what a core group was and why it was important And like that to me is God's sense of humor.`},
+        {t: 271.5, text: `Like it doesn't even need to make me laugh, honestly. Just his sense of humor is just, ‘you're joking’. That kind of like, ‘there's no way’ almost in like, seeing little miracles pop up in my life. Like that to me is hilarious of God to act that way, to just slam it right in front of me and be like, ‘This is what it is.’`},
+        {t: 295.4, text: `But it's funny because I would also describe someone that has a sense of humor now. Like I think about if a boss has a sense of humor, like I don't need to directly laugh. I can just be like, ‘there's no way that person just did that.’ Like the sense of humor that comes with that.`},
+        {t: 314.633, text: `-- and also because it's not in like direct, tangible accounts from the Bible, I see why it would be easy for non-practicing Christians to think, okay, well, if it wasn't recorded, it doesn't exist.`},
+        {t: 328.433, text: `I would argue like there are a lot of things that have existed that have gone undocumented and not recorded in human history. And if we do believe that we are made in his image, then we have to also believe that he has a sense of humor.`},
+        {t: 341.233, text: `There are many times where we see laughter in the Bible or people laughing at one another or making bold claims that make you raise an eyebrow. But it's not necessarily from a sense of humor. But to me, for people who believe in the supernatural, God, having a sense of humor does make sense because there are things that happen that we experience on this earth that there's like no way that it couldn't be him.`},
+        {t: 365.467, text: `I wish I had him having a sense of humor in the Bible. And I'm sure to many nonbelievers, they even more so wish they had that. But for me, it's like the way we experience it now. I think even about for my mom, for example, her thing is like a nail will literally drop out of thin air, Like she will be walking to her car and you'll hear a nail drop and it will be on the driveway.`},
+        {t: 387.5, text: `And that to her is the Lord. And she could go on and on about it. And I won't go on and on about it. But like she has her thing with the Lord and just always at the most like the crazy is times are the times where she's really asking the Lord for something or really wondering about something or going through a season, a nail will show up and that stuff is even hard for me to believe because sometimes I'm like, ‘Mom, like, it was just like that nail was already there’ and she's like, ‘No, I like I genuinely heard something`},
+        {t: 420.733, text: `and then I looked down and it was nail.’ Those sorts of crazy miracle things that even I sometimes I don't believe. I'm like, Mom, there's no way`},
+        {t: 432.233, text: `it's hard because it's like for people who really struggle with the supernatural.`},
+        {t: 437.067, text: `I mean, I do sometimes because it just seems so bonkers to me. But for a non practicing Christian or for like a nonbeliever, I know this seems even more extreme, so I don't fully have an answer for you, but these are just some thoughts that I have.`},
+    ],
+    'OLIVIA': [
+        {t: 0, text: `Just very kind of cursory look at some passages or verses that are that show like the promise of joy as the will of the Lord,`},
+        {t: 15.5, text: `which shows us that that's a part of who He is. It's one of his traits.`},
+        {t: 20.8, text: `His promises show`},
+        {t: 23.2, text: `inherently who he is.`},
+        {t: 25.233, text: `It's what he longs for, his people. And joy is something that's been promised over and over and over again.`},
+        {t: 30.7, text: `So I feel like the promises of joy and to enter into joy`},
+        {t: 35.067, text: `from God to us shows a lot about who God is as a joyful God.`},
+        {t: 40.9, text: `And that is ultimately the Ministry of Comedy, right? Like him telling jokes that jokes, doing bits, it's to bring`},
+        {t: 52.8, text: `laughter and it's to kind of make light of the heaviness of this post Genesis three world,`},
+        {t: 59.633, text: `the brokenness of the world after Genesis three is so real.`},
+        {t: 63.633, text: `And Jesus had promised or offered us the cup of suffering, but as well as the cup of joy.`},
+        {t: 69.833, text: `And the two go hand in hand without the joy, there's no way we can enter into the suffering of Christ.`},
+        {t: 76.133, text: `And Jesus himself talks about that metaphor of like a woman giving birth and the pain of that. But she forgets the pain immediately after the child is born because she's so filled with joy. So I feel like the Ministry of Comedy is actually to bring us into joy and to help us cope with this. Genesis three Post Genesis three World The brokenness, the suffering, the pain, the pathos.`},
+        {t: 105.067, text: `Comedy is meant to help us cope with it, not escape from it, but cope with it. So then we can say yes to the cup of suffering.`},
+    ],
+    'PAOLO': [
+        {t: 0, text: `Off the Dome, I did not write anything down.`},
+        {t: 2.167, text: `I do believe with my whole heart, with my whole being, I believe that God does have a sense of humor. Um, and a couple reasons why.`},
+        {t: 15.767, text: `One is`},
+        {t: 17.7, text: `there's some to when when David writes, he who sits in the heavens laughs. I don't think God would be laughing if he didn't have a sense of humor. And sure, it's kind of like like you Kings think you're so powerful in the way that you're plotting against me.`},
+        {t: 38.233, text: `Like you'll see kind of things. It's almost like a, like a chuckle or something. Um, so that that's one just like very, very specifically, Psalm two says he, he who sits in the heavens laughs. So that that's number one. Number two is much bigger. Um, I read the Gospels and see how, how many people like delight being with the Lord, like delight being with Jesus just like what presence with and what one time with Him are following him everywhere.`},
+        {t: 70.233, text: `Want to hear what he has to say. And I and obviously it's for sure it's because of miracles that he was doing. It's because of the authority that he carried with his speech in the way that he preached and all of that. And I also think, like,`},
+        {t: 85.667, text: `it's hard for me to read the Gospels and not believe that these men and women like, didn't like being with Jesus solely because they made them, like, laugh and smile.`},
+        {t: 99.367, text: `we know that Jesus was like divisive in his speech at times or like, you know, when questioned by the Pharisees, would answer with a riddle or something like that. And and while it isn't written, I bet he did that. Like, I bet he did that all the time with his disciples, you know, in ways that weren't always to, like, teach them something.`},
+        {t: 120.933, text: `But it was just like to make them laugh or to make them understand something with yeah, with like, levity and humor.`},
+        {t: 128.867, text: `yeah, I wish it was recorded more how often Jesus made his his friends laugh.`},
+        {t: 135.1, text: `yeah, we're made in the image of God.`},
+        {t: 137.433, text: `Like, we know this. It it's, it's biblical. We know that God is relational. We, we get to experience the truth of that, right? Like, like we, we know that humans weren't meant to go through life alone and. Yeah. And so that it's almost like proof of, like we were made by a relational god who made us in his image.`},
+        {t: 156.9, text: `And therefore, we are supposed to be relational, too. And I know for me, like with with my friends and even in even with like people or friends that I observe from afar,`},
+        {t: 169.767, text: `did. I love being around friends that make me laugh. I love being around friends that laugh when I make jokes. You know what I mean? Like`},
+        {t: 177.467, text: `especially when it isn't like at the expense of somebody else or`},
+        {t: 181.333, text: `I don't know, like, like good, clean humor. Like, I think about even Nate, Brigette, see how he's, like, killing it right now, like, top of the charts in, like, every category and he doesn't he, his jokes are like, it isn't, it isn't crude humor,`},
+        {t: 195.933, text: `it's it's his image bitterness that is on display right now and so`},
+        {t: 202.133, text: `the the laugh in and of itself is amazing.`},
+        {t: 204.233, text: `And I love to be around and I love to hear it. It's like music to my ears. Like like those are all like to me it's all beautiful, you know, like, like people who are funny and people who laugh. People who are funny enough to make others laugh. Like all of that, all of that is beauty. There's so much like, like, like, especially when it's like, when it's spontaneous and like.`},
+        {t: 226.3, text: `Yeah, unplanned`},
+        {t: 227.733, text: `And so, yeah, dude I can't, I can't help but, but believe that God had a sense of humor`},
+    ],
+    'PERLA': [
+        {t: 0, text: `I remember like, whenever I'm laughing or saying a joke or something funny happens, I, I sort of like, look up and I'm like, Hey, did you laugh too?`},
+        {t: 14.467, text: `Like, or if I make a joke of like, did you like that joke? And I just feel in my spirit, like, like he can listen and be like, Yeah, I heard it was funny and I feel like Jesus can't find something funny if he doesn't have a sense of humor. You know? And I also forget that, like, he was human, He he was on the earth for over 30 years.`},
+        {t: 40.567, text: `And I find it hard to believe that he was just walking around with a straight face the whole time. So I do think that Jesus in the flesh had a sense of humor walking around the earth for plus 30 years. And I think God, the father, being the creator of, you know, laughing and joy and all of our emotions, I think his sense of humor is portrayed through Jesus`},
+        {t: 78.533, text: `yeah, and I also think about, well, if, if I'm funny and I laugh at things that you say, or we all laugh at things that people say and God tells us that were made after his image, his image must have part fun, part joy, part part everything.`},
+        {t: 102.4, text: `So why not? LAUGHTER You know,`},
+    ],
+    'RILEY': [
+        {t: 0, text: `I definitely do think that God has a sense of humor. I think if we're all made in the Lord's image that we reflect that characteristic of his. And I'm really grateful for humor. I think it adds so much joy to our lives. And I think that the Lord did that intentionally to bring us together in community in such a big part of my reasoning for why I think God has a sense of humor is found an irony in my personal life and in the Gospels.`},
+        {t: 28.5, text: `I've seen how his irony can really play out to make me laugh and make me smile. Whether that's a situation that feels like such a big deal to me at one point, but then in prayer and reflection later on, I can look back and laugh. I do think he brings that irony and laughter into my life and even stories in Scripture, like when Jesus was in the boat with his disciples and how they were, of course, scared for their lives because it was a huge storm and Jesus was sleeping.`},
+        {t: 58.6, text: `And then he woke up and just was confused by and they were even scared, even if that wasn't meant to be funny. I think it's funny and ironic to me because I can see myself in that story. So I definitely think there's humorous aspects of the Lord's character.`},
+    ],
+    'ROUKAYA': [
+        {t: 0, text: `when I got married, or even before I got married,`},
+        {t: 4.067, text: `Connor`},
+        {t: 5.233, text: `went to the Church of Christ,`},
+        {t: 7.767, text: `I thought that meant that he's part of the church of the Latter day Saints.`},
+        {t: 13.267, text: `And so I was like, Oh my God, the man is Mormon. What am I going to do?`},
+        {t: 18.4, text: `So I find out the the Church of Christ is actually just a denomination, right? Uh huh. Cool, cool, cool. And in this denomination, I mean,`},
+        {t: 28.333, text: `some members legalistic legalism, um, whatever you want to call it, it's literally like this is what it says.`},
+        {t: 37.767, text: `And if it there's no interpretation, like, this is what it is. Okay?`},
+        {t: 42.7, text: `So me being trying to be a good person, I would just like go to church with him on Sundays, gave out the Church of Christ. Try that on the musical instruments. I was like, This is weird. Okay, whatever. Cool. One of our big problems and colonized relationship when we were first dating was like our musical instruments are said to have in church.`},
+        {t: 69.1, text: `So it got to the point where we got married. I continued to go to the church, right? And it got to the point where I was like, God, like, please, like, I know that like, Connor's the man and he has to lead and things like that.`},
+        {t: 86.567, text: `But I'm at the point where I'm not going to church anymore because I'm not getting fed because these people are crazy and they like, there's just no it's very cookie cutter. Like, there's no accountability, there's no relatability, There's no relationship. Right. Okay. And so I was like, God, like, please, like soften Connor's heart so we can go somewhere outside of the Church of Christ because they also believe that`},
+        {t: 116.533, text: `if you're not part if you're not a member of that of the Church of Christ, you're not a believer.`},
+        {t: 123.1, text: `So me being from Stone Creek, getting baptized and then meeting Connor, according to them, because I'm not a member of the Church of Christ, quote unquote, I was an unbeliever nonbeliever,`},
+        {t: 134.467, text: `so sort of like going to different churches, but different Church of Christ churches. And there this one church that it was always like too much like it's like screaming and shouting and it's just like, I'm sorry, but it's too early in the morning.`},
+        {t: 153.667, text: `I'm not trying to get overstimulated. Let's stop screaming. Right. Okay.`},
+        {t: 158.933, text: `this church`},
+        {t: 161.167, text: `into`},
+        {t: 162.2, text: `becoming a place where, like,`},
+        {t: 165.133, text: `like doctor and being explained like the word of God being, like, just told in such a way, like it's all God, like it's all the Holy Spirit. Like there is no like the pastor. I don't even see the pastor.`},
+        {t: 179.533, text: `It's like Lord Jesus. Right?`},
+        {t: 181.9, text: `The funniest thing about it is I have never felt more fed at this church than any other like time in my life. It's a Church of Christ. It's literally called Renaissance Church of Christ. So when I was asking God to heart or soften Connor's heart, in retrospect, he was softening my heart so that I could actually, like, be in like relation not only with Connor, but like with God at the same time.`},
+    ],
+    'SAM': [
+        {t: 0, text: `I am breaking the one rule that you asked, which was that this is going to be quiet,`},
+        {t: 6.067, text: `Okay, let's get into it.`},
+        {t: 10.733, text: `So I think that he has a couple of different kinds of senses of humor`},
+        {t: 16.867, text: `it's kind of like a parent looking down at a kid who's just talking nonsense and they're kind of like, ‘that's funny’ and they might egg it on a little bit or encourage it a little bit or let the kid, do their own thing.`},
+        {t: 36.6, text: `But it's more of a ‘ha ha. If you knew better’, like, ‘There's so much more for you.’ kind of way. And the reason I put it like that is I feel like in some situations in my own life, I've been so adamant that, ‘this is what I want. This is what I want, this is what I want.’`},
+        {t: 57.5, text: `And I think God sometimes kind of chuckles at that and says, “Okay,`},
+        {t: 61.133, text: `I'll give you what you want or a taste of it or a glimmer of it. But in reality, I'm giving that to you so that you realize that what you're chasing isn't necessarily what you think it is. And I have so much more for you.”`},
+        {t: 77.433, text: `There's like the whole,`},
+        {t: 79.033, text: `‘Man makes plans and God laughs’ I think that's kind of --`},
+        {t: 83.733, text: `is a big area of my life,`},
+        {t: 86.433, text: `that's been very prevalent.`},
+        {t: 89.533, text: `Having hindsight, so looking backwards, I could see that the Lord closed that door for very, very good reasons.`},
+        {t: 99.267, text: `two,`},
+        {t: 103.067, text: `If you think about the Lord creating the world, right.`},
+        {t: 110, text: `it.`},
+        {t: 116.767, text: `God created the sense of creativity and wonder in us as human beings. And not only did he create it like we're made in his image, right? And so I think because of that, like that's pretty strong evidence to suggest that God has a sense of humor, if that is what is within us. I think you could also make the argument that like, okay, we have a sense of humor that gets corrupted.`},
+        {t: 145.667, text: `What does that look like? Looks like, you know, crass jokes and whatnot. It's the same thing you could say for like the desire to create art, right? He created that in us. Right. But we want to, like, create things that are beautiful.`},
+        {t: 165.6, text: `I also think that the act of like making people laugh`},
+        {t: 173.533, text: `and bringing joy to someone and a smile to their face and like, you really think it's like really hard about like when somebody tells a joke that you think is funny or makes a comment or a bet or whatever, and you're like, really, really laughing at it.`},
+        {t: 191.267, text: `Like, it's almost like the world stops at some level. Like you kind of forget about all the anxieties, all the fears, all the, the yeah, depression, like whatever it is that you're dealing with that day, it all kind of stopped. And I think that there's a reason story that that like they were laughing so hard that like our brain literally can't think about anything else like I think that that is like a medicine or that that the lawyers are giving us`},
+        {t: 224.267, text: `for many generations has said that like you have to tackle like everything head on,`},
+        {t: 229.533, text: `which I don't disagree with. I think that's very healthy.`},
+        {t: 232, text: `However, I do think that sometimes, just sometimes, like you've just got it like laugh a day, he's got to like, get a little distracted and get a little bit away from it.`},
+        {t: 243.6, text: `And it actually does help a lot.`},
+        {t: 246.067, text: `I just think like that is I think that's just like so fundamental to human nature that I don't see a way that God could have created it. And the reason going back again, zooming out to my first point, the fact that like we're created in his image, therefore we have these things about us.`},
+        {t: 265.867, text: `Last thing also I said also, I think there's something so innately you're mean and like it just like it just it has like it's hard to put words around all those, but like the desire to create, to build, to be creative, to come up with new standards, to entertain with like hospitality, like all these things are like, so spiritual in my opinion.`},
+        {t: 295, text: `Like they only could have come from God because, like, you really think about it, like, all those things cost the person that's hearing that something`},
+        {t: 303.833, text: `so there's like not a logical argument of, like self-preservation`},
+        {t: 307.367, text: `not. Like it supports that, in my opinion. So I think it does good for the Lord and it's very spiritual.`},
+    ],
+    'SARYA': [
+        {t: 0, text: `God is -- in my experience -- so witty and so cool when it comes to humor.`},
+        {t: 7.667, text: `You have to, like, literally get it. You have to, like, catch it at the moment. I think one instance is like, Balaam. We just recently talked about this, the story of Balaam and the Donkey and how God literally to get Balaam’s attention made the donkey speak. Which is a very funny -- like that is so God-coded. Another instance is -- I can't think of where it is scripturally, where it's like -- God's just being hilarious.`},
+        {t: 42.867, text: `Oh, there’s always like little winks from God. You know, that's a beautiful thing about it. There's always, like, this little wink of like, well, I think Jonah and the big fish like that is a funny aspect of Jonah being kind of like us sometimes, how we are sometimes so petty -- not even petty, but just stubborn of -- not doing what God asked him to.`},
+        {t: 73.8, text: `He slept in the boat and was like, “Yeah, I'm in this boat because my God, who was the Creator of all things was shaking the boat.” And he goes back to sleep. And he's like, “You know what? I'm just going to die.”. So somehow he gets eaten by a fish, but not even eaten, just swallowed.`},
+        {t: 94.9, text: `And so, God's like, “Dude, you can't run from this. Like, you're going to stay.” So, it just reminds me of a cartoon like Looney Tunes or just a person trying to get away. I don't know. It's a long, witty -- trying to explain like, jokes. But, if you know, you know. Yeah, even for my life God, he showed me his funny ways, like`},
+        {t: 118.367, text: `my boyfriend now, I'm in a relationship now.`},
+        {t: 120.467, text: `He and I, just the way that we got together is a laugh. Like it was very much, ‘God, you are so good. Like you are funny. You're so good.’ And how we were in the same friend group, the same places, but we never really talked to each other. We never really knew each other at a friendship level.`},
+        {t: 140.733, text: `We were more of acquaintances and to see how we became friends and then now together for two years. This is just funny because like, you would have never expected that. But all these years, what? God does have a sense of humor. And I love him. I love that. I mean, think about all your comedians today or even yourself.`},
+        {t: 165.6, text: `Who do you think you got that from?`},
+    ],
+    'SAVANNA': [
+        {t: 0, text: `I think just the reality that we were created in the image of God and that even once we get saved, we still laugh and have joy and -- yeah, I think that maybe humor is separate from joy? But laughter is in both of them.`},
+        {t: 26.533, text: `I don't know. It's kind of just like a work in progress because it's like once we get saved, yes, our sense of humor, I think, sometimes needs sanctifying. Just like anything else. But with being created in the image of God, our ability to laugh and I think even like babies laughing and finding things funny before they can even speak.`},
+        {t: 51.833, text: `I think it's another reason why, like, even before we sin or know right from wrong, we know joy and laughter.`},
+    ],
+    'SEAN': [
+        {t: 0, text: `You know, Jesus is the image of the invisible God, as Colossians 1 talks about.`},
+        {t: 5.8, text: `You can look at the life of Jesus and see this Trinitarian God. If Jesus has humor, that means God has humor.`},
+        {t: 14.133, text: `And I think in the life of Jesus, we see humor a couple of different places. My favorite one is Mathew 17, Jesus has instructed Peter to go out and to find a coin in a fish’s mouth at one point. And I just think that's funny. I think that he's like, “Hey, I could have just told you to go do this or this or this, but I want for you to find this coin in a fish’s mouth.”`},
+        {t: 39.167, text: `Like, just imagine the image of Jesus sitting at the sea, watching Peter try to grab this fish, open it’s mouth and find a coin. That's not common sense. That's humor. And other ways, just you know, I think that in his first miracle at the wedding of Cana --`},
+        {t: 56.967, text: `for this first miracle to not be healing a lame beggar or giving sight to a blind man but it's turning water to wine.`},
+        {t: 67.733, text: `Yeah. I just think there is humor in that story because if you read that story, usually the tradition is the best wine would have been served first and the worst wine later as they got more drunk during a feast. That's when the worst wine would have come out. But Jesus doesn't make some $10 bottle of wine from Kroger, he makes the greatest bottle of wine you can imagine.`},
+        {t: 94.967, text: `And I just think that's funny. You know, he's like, “Hey, I do it opposite. This is who I am.” I think there's humor in that. Also, he sits around tables`},
+        {t: 104.333, text: `and just does life with them. I got to imagine they were laughing. Man, another, just in creation, the way that God creates.`},
+        {t: 104.333, text: `We find things funny. I think that if he didn’t, then when we were made new by the Holy Spirit, humor would go away. But I found it to be the opposite, that with the joy of the spirit comes even more moments to laugh out yourself. Yes. Long story short, yes, We find things funny. I think that, you know, if he did it, then we were made do by the Holy Spirit. Humor would go away. But I found it to be the opposite, that with the joy of the spirit comes even more moments to laugh out yourself. Yes. Long story short, yes,`},
+        {t: 112.6, text: `I mean, just look at it. The platypus. That's funny. You know, that's humor. I think that there's a lot of different animals, species and things that God is a creative God. I think that he has humor within it. So, yeah, all that to say, Do I think that God has a sense of humor? I absolutely do. Also, we were created in his image. So, yeah, all I would say do I think that God has absolutely to also be creative and let you have a sense of humor?`},
+    ],
+    'SERENA': [
+        {t: 0, text: `So I absolutely, absolutely think that God has a sense of humor. And the main thing that was coming to mind as I kept considering this question was that we are all Imago Dei. Meaning that God says that we are made in His image. That He knit us together in our mothers' wombs.`},
+        {t: 23.633, text: `Psalm 139: we are His craftsmanship, we are His children.`},
+        {t: 29.633, text: `yeah, one of the things`},
+        {t: 31, text: `always tend to look for in a partner and one of the I think anchoring commonalities I find in some of my dearest friendships is this shared sense of humor. And I just-- laughter and humor, etc.. Is something I really value in relationships period.`},
+        {t: 54.6, text: `I believe it's like one of those, one of the many threads of the character of God that He has woven into His people. And it can look many ways for many people.`},
+        {t: 65.267, text: `and it does show up in a million different ways. I think that's a cool thing about laughter and joking and humor is that`},
+        {t: 72.433, text: `everyone has a different flavor and a different thread and that's just like God, He is multifaceted.`},
+        {t: 79, text: `well, yeah, I'm thinking of Psalm 16, which also is like in his presence,`},
+        {t: 83.067, text: `there is fullness of joy. And of course, like again, definitions look entirely different to different people, I’m also talking about the Webster dictionary, but I didn't really think about how God is joy and in His presence there is fullness of joy.`},
+        {t: 101.1, text: `Joy can encompass laughter. And so sometimes, when I’ll read stuff like that, you know, I imagine that like laughter and humor can be a part of that,`},
+        {t: 112.267, text: `maybe one of the other things I was thinking a lot about too is like how, you know, “the earth is the Lord's and the fullness thereof”. In Genesis 1, He created all of creation. And I was kind of just thinking about how many like funny little things there are in creation.`},
+        {t: 135.5, text: `Like I was thinking about a banana and how like, perfect the fruit of a banana is because it comes with its own little handle and how that is. It's like, so hilarious or like how many like funny,`},
+        {t: 150.733, text: `animals there are out there like a miniature pony that are just like, silly and goofy, but just like make you laugh just because they exist.`},
+        {t: 160.633, text: `Like a seahorse is such a funny thing. With it's like little curly tail, doesn’t have any`},
+        {t: 165.467, text: `real arms, etc. You kinda look at those and you're like, ‘Oh man, this totally is proof that there is a creator and that God has humor, because this is such a silly little critter.’`},
+        {t: 177.967, text: `God created certain things, certain ways, etc. just to like make us laugh and to bring joy. Because he totally could have like created the earth`},
+        {t: 189.2, text: `Dull and boring`},
+        {t: 190.267, text: `but He didn’t, He chose to, like, make it beautiful, which is part of this character. I think a part of that is just like making things silly and funny`},
+        {t: 199.5, text: `you know, just those moments in life where something happens, and`},
+        {t: 204.067, text: `like some person might call it a coincidence,`},
+        {t: 208.6, text: `These like, silly moments`},
+        {t: 209.767, text: `where I’m like, “God, only you.” You know?`},
+        {t: 212.233, text: `there was this time I was like in LAX and it was so my fault. I was so running late. I was sure I was going to like miss my flight. Stress galore`},
+        {t: 223.9, text: `As you can imagine.`},
+        {t: 225.067, text: `I like got to the front of the line with the TSA officer or whatever. I'm distressed and I'm like, oh my gosh, like praying like, “Lord, help me help me help me.” and the TSA agent, took my ID. And he looks at it and he goes, Because I started Minnesota. I mean, Virgin, Minnesota, like I went to high school there and maybe that doesn't sound like much, but one nobody in the world is from hitting Minnesota and definitely nobody outside of Minnesota, necessarily.`},
+        {t: 258.8, text: `People in Minnesota. And they especially don't go to big cities. So like they especially don't go to L.A.`},
+        {t: 266.367, text: `And so anyways,`},
+        {t: 267.9, text: `you, like, looked at me and we just like, suck it and be so kind and there's just like a couple, you know, little like moments where we're talking about, like my high school, which again, like nobody goes to.`},
+        {t: 281.467, text: `He was so close to my dad's grade. He didn't recognize my dad's name, but he looked about what would have been my dad's age at the time. And I just remember like being like, “God, like you are so with me right now.” And I literally cried like, I move on, I get more secure. And the guy, he's like, “You're going to be ok” like, “you will make your flight.`},
+        {t: 304.333, text: `“You will be fine.” And I forget what he did, but he basically like ushered me to the front of the line somehow and like, assisted me in a way that was very helpful. And yeah, and I made my flight on time, and it was all because of this stranger's kindness. It was like from my hometown and again, like, I guess the humorous part of that story is like, this guy's from my hometown.`},
+        {t: 330.3, text: `And we just had like a couple of giggles, laughs`},
+        {t: 333.233, text: `I was it was so just like a ‘God wink’. One of those moments that it could have only been from God. I just like giggled and I was like, “God, you always-- You've got me always like, you are my shepherd and you're always like, taking care of me.”`},
+    ],
+    'TINA': [
+        {t: 0, text: `is`},
+        {t: 1.2, text: `a god of many emotions, and humor is one of them. I think God is actually really funny`},
+        {t: 8.4, text: `and`},
+        {t: 9.4, text: `he's given us a sense of humor because he also has a sense of humor and wants us to live and enjoy life and sometimes not take it so seriously.`},
+        {t: 19.4, text: `when I was taking a break from church,`},
+        {t: 24.5, text: `And there was just a series of things that have happened in New Jersey. And I was like, ‘I need a break from church.’`},
+        {t: 31.967, text: `But within that year, God actually did several things. And so one, I think he's really funny because`},
+        {t: 38.1, text: `I am obsessed with`},
+        {t: 39.7, text: `like European football or soccer. And I ended up booking my trip to London to watch soccer.`},
+        {t: 48, text: `Not necessarily to go to church,`},
+        {t: 50.2, text: `And so I went to London to watch my series of football games and ended up stepping into church and the Lord encountering me so gently and kindly and really like beautifully speaking into my identity once again.`},
+        {t: 68.867, text: `And so that was a really sweet time. And I was just like, ‘God, you're really funny because you would use something like soccer to bring me back to you.’`},
+        {t: 78.3, text: `when I went to London, I was there on Holiday in 2023 of March, on holiday with my mom, and I felt the Lord say, “Extend a week.”`},
+        {t: 88.6, text: `And so I did. And after I extended a week, I realized that God just asked me to do that so that I can go to this`},
+        {t: 95.833, text: `conference. And there -- because of my past and my pains with like leadership and pastors,`},
+        {t: 104.733, text: `he places me in a group of only pastors and I'm the only one there and one other person that was not a pastor.`},
+        {t: 111.833, text: `And I'm like, ‘Oh God, you're actually really funny.’ But it's neat because he used that space, through these pastors`},
+        {t: 119.167, text: `to speak into my life. And it was in the most perfect way where they were so unassuming`},
+        {t: 127.333, text: `But I just thought it was really funny. I was like, ‘God, you would put me in a group full of pastors,’ but also him just knowing the timing and just being really gentle and kind in that way too. I was just like, ‘God, you're also really kind.’ So it's not like the ‘hahaha’ sense of humor, but it's more like, ‘Oh God, you would’ kind of sense of humor.`},
+        {t: 153.833, text: `But yeah,`},
+    ],
+    'YOHAAN': [
+        {t: 0, text: `I guess because my personality is more wired towards humor and fun and laughter. And as somebody made in God's image, I think I'll resonate with that side of God's image,`},
+        {t: 12.3, text: `being one of having humor and having fun,`},
+        {t: 14.967, text: `ultimately, like when I engage with funny people, I want to see that as a gift from God and a reflection of who Christ is, reflection of who God is.`},
+        {t: 24.367, text: `I remember when I made a decision to follow Jesus.`},
+        {t: 27.9, text: `I was a Christian who had walked away from God as a teenager. I grew up in a church, in the pastor's`},
+        {t: 34.067, text: `And then when I made a decision to come back and follow Jesus and submit to him fully in my early twenties,`},
+        {t: 40.767, text: `one of the lines I prayed was, “If it means following you and living the most boring life ever, then I’m in,” and kind of weeping`},
+        {t: 48.9, text: `Fast forward 20 years being in flipping New York City with my amazing wife and family and this lovely church and job and the friends that I have is anything but boring. If anything, it's so the opposite. And so, so far from the thought I had of what my life would be to where my life is now. In my wildest imagination,`},
+        {t: 69.133, text: `I’d have never perceived or imagine that I could go from that journey -- that day 20 years ago to being in New York City and London and all of that. And it's got to be like, God has a sense of humor. He’s like, “You thought following me, would be boring, but this is what's on offer.”`},
+        {t: 87.033, text: `Broadly speaking, when you see humor reflected in people, especially when it's done in an honoring, beautiful, God-glorifying way,`},
+        {t: 94.8, text: `it must be a reflection of`},
+        {t: 96.9, text: `who God is because we’re made in his image. If God wasn’t a God of humor, why would he make us funny in a GOOD way? a good way? a good way?`},
+        {t: 96.9, text: `There's that. And then, of course, when you read Jesus and the account of him in the Gospels, you know, some of the stuff that Jesus said, if he did have a sense of humor, like, well, why did he get away with these things? But you get obviously a cheeky side to what Jesus said and the fact that the people he said these really sharp cutting things, There's that. And then, of course, when you read Jesus and the account of his account in the Gospels, you know, some of the stuff that Jesus said, if he did have a sense of humor, like, well, why did he get away with these things? But you get obviously a cheeky side to what Jesus said and the fact that the people he said these really sharp cutting things,`},
+        {t: 148.4, text: `And yet people are so drawn to him, he must have been like a nasty, evil communicator or cutting, harsh communicator. There must have been a sparkle in his eye -- I don’t know. But this is me reading into the text, into the texts. I have to be really careful because that's not what Scripture said. The Scripture says exactly what it says, but I imagine Jesus doing that with the spoken, and I`},
+    ],
+};
+
+        // Get transcript blocks for an audio filename
+        function getTranscriptBlocks(audioFilename) {
+            const firstName = audioFilename.split(' ')[0];
+            return transcripts[firstName] || [];
+        }
+
+        // Load and prepare transcript for a track
+        function loadTranscript(audioFilename) {
+            transcriptText.textContent = '';
+            totalWordsShown = 0;
+            transcriptBlocks = [];
+            const blocks = getTranscriptBlocks(audioFilename);
+            if (blocks.length) {
+                transcriptBlocks = blocks.map(b => ({
+                    t: b.t,
+                    words: b.text.trim().split(/\s+/)
+                }));
+                transcriptPanel.classList.add('visible');
+            } else {
+                transcriptPanel.classList.remove('visible');
+            }
+        }
+
+        // Reveal entire blocks at their timestamps
+        function updateTranscript() {
+            if (!transcriptBlocks.length || !audioPlayer.duration) return;
+
+            const currentTime = audioPlayer.currentTime;
+            let blocksToShow = 0;
+
+            for (let i = 0; i < transcriptBlocks.length; i++) {
+                if (currentTime >= transcriptBlocks[i].t) {
+                    blocksToShow = i + 1;
+                } else {
+                    break;
+                }
+            }
+
+            if (blocksToShow < totalWordsShown) {
+                // User seeked backward - rebuild
+                transcriptText.textContent = '';
+                totalWordsShown = 0;
+            }
+            if (blocksToShow > totalWordsShown) {
+                for (let i = totalWordsShown; i < blocksToShow; i++) {
+                    if (i > 0) transcriptText.appendChild(document.createTextNode(' '));
+                    const span = document.createElement('span');
+                    span.textContent = transcriptBlocks[i].words.join(' ');
+                    transcriptText.appendChild(span);
+                }
+                totalWordsShown = blocksToShow;
+                transcriptPanel.scrollTop = transcriptPanel.scrollHeight;
+            }
+        }
+
+        // Hook into existing timeupdate
+        audioPlayer.addEventListener('timeupdate', updateTranscript);
+
+        // Modify togglePlay to load transcript
+        const originalTogglePlay = togglePlay;
+        togglePlay = function(element, file) {
+            const isNewTrack = currentlyPlaying !== element;
+            originalTogglePlay(element, file);
+            if (isNewTrack) {
+                loadTranscript(file);
+            }
+        };
 
     </script>
 </body>
