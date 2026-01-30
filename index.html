@@ -300,7 +300,7 @@
             result = result.replace(/\bwillard\b/g, 'Willard');
             result = result.replace(/\bgod\b/g, 'God');
             // Prevent orphaned single word on last line (except "Keithen consults Willard")
-            if (result !== 'Keithen consults Willard') {
+            if (result !== 'Keithen consults Willard' && result !== 'Anabelle loved squirrels, not the basement') {
                 const words = result.split(' ');
                 if (words.length >= 3) {
                     return words.slice(0, -2).join(' ') + ' ' + words.slice(-2).join('\u00A0');
