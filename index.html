@@ -231,9 +231,9 @@
             left: 0;
             width: 100%;
             height: 100vh;
-            background: #1a1a1a;
+            background: #e8e8e8;
             z-index: 2000;
-            color: #e8e8e8;
+            color: #333;
         }
         .text-page.visible {
             display: block;
@@ -252,7 +252,7 @@
         .text-page .page-header .title {
             font-size: 1.4rem;
             font-weight: 600;
-            color: #e8e8e8;
+            color: #333;
             line-height: 1.3;
             cursor: pointer;
             text-decoration: none;
@@ -265,6 +265,33 @@
             text-decoration: underline;
         }
 
+        /* Scripture references on text page */
+        .scripture-text {
+            position: absolute;
+            top: 80px;
+            left: 40px;
+            right: 40px;
+            bottom: 40px;
+            width: auto;
+            text-align: left;
+            font-size: 5.265rem;
+            font-weight: 500;
+            color: #333;
+            line-height: 1.1;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+        .scripture-text a {
+            color: #333;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        .scripture-text a:hover {
+            opacity: 0.5;
+            text-decoration: underline;
+        }
+
         /* Floating photos on text page */
         .floating-photos {
             position: absolute;
@@ -274,16 +301,21 @@
             height: 100%;
             overflow: hidden;
             pointer-events: none;
+            z-index: 2;
+        }
+        .floating-photos a {
+            display: contents;
         }
         .floating-photo {
             position: absolute;
-            width: 180px;
+            width: 164px;
             height: auto;
             filter: blur(3px);
-            opacity: 0.8;
+            opacity: 1;
             transition: filter 0.3s ease, opacity 0.3s ease, width 0.3s ease, transform 0.3s ease;
             pointer-events: auto;
             animation: floatUp linear infinite;
+            cursor: pointer;
         }
         .floating-photos:hover .floating-photo {
             animation-play-state: paused;
@@ -291,7 +323,7 @@
         .floating-photo:hover {
             filter: blur(0);
             opacity: 1;
-            width: 360px;
+            width: 328px;
             z-index: 100;
         }
         @keyframes floatUp {
@@ -395,38 +427,29 @@
 <body>
     <div class="landing-screen" id="landingScreen">
         <div class="title">God's Humor</div>
-        <div class="subtitle">as told by friends of his</div>
+        <div class="subtitle">as told by friends of His</div>
     </div>
 
     <header class="site-header">
         <div class="title" id="textNav">Text</div>
-        <div class="title" id="testimoniesNav">Testimonies</div>
+        <div class="title" id="testimoniesNav">Testimony</div>
     </header>
 
     <div class="text-page" id="textPage">
         <div class="page-header">
             <div class="title" id="textNavInner">Text</div>
-            <div class="title" id="testimoniesNavInner">Testimonies</div>
+            <div class="title" id="testimoniesNavInner">Testimony</div>
+        </div>
+        <div class="scripture-text">
+            <span>Genesis <a href="genesis-17-17.html">17:17</a> / <a href="genesis-18-12-15.html">18:12-15</a> / <a href="genesis-21-6.html">21:6</a> / Job <a href="job-5-22.html">5:22</a> / <a href="job-8-21.html">8:21</a> / <a href="job-12-4.html">12:4</a> / Psalm <a href="psalm-2-4.html">2:4</a> / <a href="psalm-37-13.html">37:13</a> / <a href="psalm-59-8.html">59:8</a> / <a href="psalm-126-2.html">126:2</a> / Proverbs <a href="proverbs-1-26.html">1:26</a> / <a href="proverbs-14-13.html">14:13</a> / <a href="proverbs-29-9.html">29:9</a> / <a href="proverbs-31-25.html">31:25</a> / Ecclesiastes <a href="ecclesiastes-2-2.html">2:2</a> / <a href="ecclesiastes-3-4.html">3:4</a> / <a href="ecclesiastes-7-3-6.html">7:3-6</a> / <a href="ecclesiastes-10-19.html">10:19</a> / Habakkuk <a href="habakkuk-1-10.html">1:10</a> / Matthew <a href="matthew-9-24.html">9:24</a> / Mark <a href="mark-5-40.html">5:40</a> / Luke <a href="luke-6-21.html">6:21</a> / <a href="luke-6-25.html">6:25</a> / <a href="luke-8-53.html">8:53</a> / James <a href="james-4-9.html">4:9</a></span>
         </div>
         <div class="floating-photos">
-            <img class="floating-photo" src="PHOTOS/01_Job_Friends.jpg" style="left: 3%; animation-duration: 25s; animation-delay: 0s;">
-            <img class="floating-photo" src="PHOTOS/02_Job_SouthPark.webp" style="left: 12%; animation-duration: 22s; animation-delay: -18s;">
-            <img class="floating-photo" src="PHOTOS/03_Job_Linocut.jpg" style="left: 20%; animation-duration: 28s; animation-delay: -8s;">
-            <img class="floating-photo" src="PHOTOS/04_Abraham_3Angels.jpg" style="left: 28%; animation-duration: 24s; animation-delay: -14s;">
-            <img class="floating-photo" src="PHOTOS/05_Abraham&Sarah_1Angel.jpg" style="left: 36%; animation-duration: 26s; animation-delay: -4s;">
-            <img class="floating-photo" src="PHOTOS/05_Psalm126.webp" style="left: 44%; animation-duration: 23s; animation-delay: -20s;">
-            <img class="floating-photo" src="PHOTOS/06_Psalm-2-etching.jpg" style="left: 52%; animation-duration: 27s; animation-delay: -10s;">
-            <img class="floating-photo" src="PHOTOS/07_Psalter-David.jpg" style="left: 60%; animation-duration: 21s; animation-delay: -16s;">
-            <img class="floating-photo" src="PHOTOS/08_Psalm-59.jpg" style="left: 68%; animation-duration: 29s; animation-delay: -6s;">
-            <img class="floating-photo" src="PHOTOS/09_Proverbs+31.webp" style="left: 76%; animation-duration: 24s; animation-delay: -22s;">
-            <img class="floating-photo" src="PHOTOS/10_veggie-tales-abraham-sarah.jpg" style="left: 84%; animation-duration: 26s; animation-delay: -12s;">
-            <img class="floating-photo" src="PHOTOS/11-jesus-christ-raising-daughter-of-jairus-carl-bloch.jpg" style="left: 92%; animation-duration: 22s; animation-delay: -2s;">
-            <img class="floating-photo" src="PHOTOS/12-psalm126.jpg" style="left: 7%; animation-duration: 30s; animation-delay: -24s;">
-            <img class="floating-photo" src="PHOTOS/13-psalm126.jpg" style="left: 24%; animation-duration: 23s; animation-delay: -15s;">
-            <img class="floating-photo" src="PHOTOS/14-proverbs1.jpg" style="left: 40%; animation-duration: 27s; animation-delay: -7s;">
-            <img class="floating-photo" src="PHOTOS/15-proverbs29.jpg" style="left: 56%; animation-duration: 25s; animation-delay: -19s;">
-            <img class="floating-photo" src="PHOTOS/16-ecclesiastes-2022.webp" style="left: 72%; animation-duration: 22s; animation-delay: -11s;">
-            <img class="floating-photo" src="PHOTOS/17-ecclesiastes-2022-B&W.jpg" style="left: 88%; animation-duration: 28s; animation-delay: -3s;">
+            <a href="job-8-21.html"><img class="floating-photo" src="PHOTOS/01_Job_Friends.jpg" style="left: 5%; animation-duration: 25s; animation-delay: 0s;"></a>
+            <a href="genesis-18-12-15.html"><img class="floating-photo" src="PHOTOS/04_Abraham_3Angels.jpg" style="left: 18%; animation-duration: 28s; animation-delay: -14s;"></a>
+            <a href="psalm-126-2.html"><img class="floating-photo" src="PHOTOS/05_Psalm126.webp" style="left: 32%; animation-duration: 23s; animation-delay: -8s;"></a>
+            <a href="psalm-37-13.html"><img class="floating-photo" src="PHOTOS/07_Psalter-David.jpg" style="left: 45%; animation-duration: 26s; animation-delay: -20s;"></a>
+            <a href="genesis-21-6.html"><img class="floating-photo" src="PHOTOS/10_veggie-tales-abraham-sarah.jpg" style="left: 58%; animation-duration: 24s; animation-delay: -4s;"></a>
+            <a href="proverbs-1-26.html"><img class="floating-photo" src="PHOTOS/14-proverbs1.jpg" style="left: 71%; animation-duration: 22s; animation-delay: -10s;"></a>
         </div>
     </div>
 
@@ -480,13 +503,32 @@
             testimoniesNavInner.classList.add('active');
         }
 
-        // Set initial active state (Testimonies page is shown first)
-        testimoniesNav.classList.add('active');
+        // Handle hash-based navigation (from scripture pages)
+        function handleHashNavigation() {
+            const hash = window.location.hash;
+            if (hash === '#textPage') {
+                showTextPage();
+            } else if (hash === '#testimoniesPage') {
+                showTestimoniesPage();
+            } else {
+                // Default: show testimonies page
+                testimoniesNav.classList.add('active');
+            }
+        }
+
+        // Check hash on page load
+        handleHashNavigation();
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', handleHashNavigation);
 
         textNav.addEventListener('click', showTextPage);
         testimoniesNav.addEventListener('click', showTestimoniesPage);
         textNavInner.addEventListener('click', showTextPage);
-        testimoniesNavInner.addEventListener('click', showTestimoniesPage);
+        testimoniesNavInner.addEventListener('click', function() {
+            showTestimoniesPage();
+            window.location.hash = '#testimoniesPage';
+        });
 
         const audioFiles = [
             "ANABELLE Loved Squirrels, Not the Basement.mp3",
@@ -1367,7 +1409,7 @@
         floatingPhotos.forEach(photo => {
             photo.addEventListener('mouseenter', function() {
                 const rect = this.getBoundingClientRect();
-                const expandedWidth = 360;
+                const expandedWidth = 328;
                 const expandedHeight = (rect.height / rect.width) * expandedWidth;
 
                 // Calculate how much the image will grow
