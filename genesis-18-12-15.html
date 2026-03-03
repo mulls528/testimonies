@@ -65,7 +65,9 @@
 
         .top-right {
             flex: 1;
-            padding-top: 100px;
+            position: relative;
+            height: 0;
+            overflow: visible;
         }
 
         .scripture-title {
@@ -156,11 +158,62 @@
             color: #e8e8e8;
         }
 
+        .dark-subtitle {
+            font-size: 1.2rem;
+            font-weight: 400;
+            line-height: 1.3;
+            color: #e8e8e8;
+            margin-top: 8px;
+        }
+
         .dark-body {
             font-size: 1.2rem;
             font-weight: 400;
             line-height: 1.3;
             color: #e8e8e8;
+        }
+
+        /* Underlined words are clickable */
+        .passage-text u {
+            cursor: pointer;
+        }
+
+        /* Footnote panel in right column */
+        .footnote-panel {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+        }
+
+        .footnote-item {
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .footnote-item.dimmed {
+            opacity: 0.3;
+        }
+
+        .footnote-anchor {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            text-decoration: underline;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .footnote-text {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #333;
+        }
+        .footnote-text::first-letter {
+            text-transform: uppercase;
         }
 
         /* Side Navigation (Previous/Next) */
@@ -227,14 +280,11 @@
                 <h1 class="scripture-title">Genesis 18:12-15</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    <span class="verse-num">12</span> So Sarah laughed to herself, saying, "After I am worn out, and my lord is old, shall I have pleasure?" <span class="verse-num">13</span> The Lord said to Abraham, "Why did Sarah laugh and say, 'Shall I indeed bear a child, now that I am old?' <span class="verse-num">14</span> Is anything too hard for the Lord? At the appointed time I will return to you, about this time next year, and Sarah shall have a son." <span class="verse-num">15</span> But Sarah denied it, saying, "I did not laugh," for she was afraid. He said, "No, but you did laugh."
+                    <span class="verse-num">12</span> So Sarah <u data-footnote="Significantly, this is what Sarah (and Abraham) most wanted all their lives — to have a child of their own. Yet they found it hard to believe God’s promise when He said He would grant it to them.">laughed</u> to herself, saying, <u data-footnote="Leupold translates, “After I have become worn out, have I enjoyed sexual delight and my lord too is an old man?” Leupold then observed, “The matter is not put very delicately by Sarah.”">"After I am worn out, and my lord is old, shall I have pleasure?"</u> <span class="verse-num">13</span> The Lord said to Abraham, "Why did Sarah <u data-footnote="When Sarah laughed at God’s twice-given promise, we might think God would take the promise away. Instead, God responded by dealing with her sin of unbelief, not by taking away the promise.">laugh</u> and say, 'Shall I indeed bear a child, now that I am old?' <span class="verse-num">14</span> Is anything too <u data-footnote="or wonderful">hard</u> for the Lord? At the appointed time I will return to you, about this time next year, and Sarah shall have a son." <span class="verse-num">15</span> But Sarah denied it, saying, "I did not <u data-footnote="When Sarah laughed at God’s twice-given promise, we might think God would take the promise away. Instead, God responded by dealing with her sin of unbelief, not by taking away the promise.">laugh</u>," for she was afraid. He said, "No, but you did <u data-footnote="When Sarah laughed at God’s twice-given promise, we might think God would take the promise away. Instead, God responded by dealing with her sin of unbelief, not by taking away the promise.">laugh</u>."
                 </div>
             </div>
             <div class="top-right">
-                <!-- Body Text -->
-                <div class="body-text">
-                    Ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit
-                </div>
+                <div class="footnote-panel"></div>
             </div>
         </div>
     </main>
@@ -244,13 +294,16 @@
         <div class="dark-row">
             <div class="dark-img-wrap">
                 <img src="PHOTOS/04_Abraham_3Angels.jpg" alt="Scripture illustration">
+                <p class="image-caption">Pen and brown ink, white body color, 1646 or later</p>
             </div>
             <div class="dark-right">
-                <h2 class="dark-header">Background</h2>
-                <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                <div>
+                    <h2 class="dark-header"><em>Abraham Meeting the Lord and Two Angels</em></h2>
+                    <p class="dark-subtitle">Ferdinand Bol</p>
+                </div>
+                <p class="dark-body">This piece depicts the story of the three visitors to Abraham, found in Genesis 18, describes Abraham&#8217;s profound hospitality toward three men who appeared at his tent. The visitors were messengers from God, one of whom was God himself (a theophany), while the other two were angels. They brought a dual message: the promise that Sarah would give birth to a son, and the news that God&#8217;s judgment would fall on the cities of Sodom and Gomorrah.</p>
             </div>
         </div>
-        <p class="image-caption">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh</p>
     </section>
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
@@ -327,6 +380,36 @@
         window.addEventListener('resize', initDarkSectionOffset);
         initDarkSectionOffset();
         onScroll();
+
+        // --- Footnote system ---
+        (function() {
+            const panel = document.querySelector('.footnote-panel');
+            if (!panel) return;
+
+            document.querySelectorAll('.passage-text u').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    // Prevent duplicate footnotes for the same word/phrase
+                    const word = el.textContent.trim();
+                    const existing = panel.querySelectorAll('.footnote-anchor');
+                    for (let i = 0; i < existing.length; i++) {
+                        if (existing[i].textContent.trim() === word) return;
+                    }
+
+                    // Dim all existing footnotes
+                    panel.querySelectorAll('.footnote-item').forEach(function(fn) {
+                        fn.classList.add('dimmed');
+                    });
+
+                    // Create and append new footnote
+                    const item = document.createElement('div');
+                    item.className = 'footnote-item';
+                    item.innerHTML =
+                        '<span class="footnote-anchor">' + word + '</span>' +
+                        '<p class="footnote-text">' + (el.getAttribute('data-footnote') || '') + '</p>';
+                    panel.appendChild(item);
+                });
+            });
+        })();
     </script>
 </body>
 </html>

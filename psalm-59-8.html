@@ -65,7 +65,9 @@
 
         .top-right {
             flex: 1;
-            padding-top: 100px;
+            position: relative;
+            height: 0;
+            overflow: visible;
         }
 
         .scripture-title {
@@ -156,11 +158,62 @@
             color: #e8e8e8;
         }
 
+        .dark-subtitle {
+            font-size: 1.2rem;
+            font-weight: 400;
+            line-height: 1.3;
+            color: #e8e8e8;
+            margin-top: 8px;
+        }
+
         .dark-body {
             font-size: 1.2rem;
             font-weight: 400;
             line-height: 1.3;
             color: #e8e8e8;
+        }
+
+        /* Underlined words are clickable */
+        .passage-text u {
+            cursor: pointer;
+        }
+
+        /* Footnote panel in right column */
+        .footnote-panel {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+        }
+
+        .footnote-item {
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .footnote-item.dimmed {
+            opacity: 0.3;
+        }
+
+        .footnote-anchor {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            text-decoration: underline;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .footnote-text {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #333;
+        }
+        .footnote-text::first-letter {
+            text-transform: uppercase;
         }
 
         /* Side Navigation (Previous/Next) */
@@ -227,14 +280,11 @@
                 <h1 class="scripture-title">Psalm 59:8</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    But you, O Lord, laugh at them; you hold all the nations in derision.
+                    But you, O Lord, <u data-footnote="The title of this psalm is “To the Chief Musician. Set to 'Do Not Destroy.' A Michtam of David when Saul sent men, and they watched the house in order to kill him.” This refers to the incident in 1 Samuel 19:11-12, which was when the murderous intent of King Saul against David was openly revealed, and David began his long season of living as a fugitive.">laugh</u> at them; you hold all the nations in derision.
                 </div>
             </div>
             <div class="top-right">
-                <!-- Body Text -->
-                <div class="body-text">
-                    Ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit
-                </div>
+                <div class="footnote-panel"></div>
             </div>
         </div>
     </main>
@@ -244,13 +294,16 @@
         <div class="dark-row">
             <div class="dark-img-wrap">
                 <img src="PHOTOS/08_Psalm-59.jpg" alt="Scripture illustration">
+                <p class="image-caption">Kreg Yingst, Psalm 59, Block Printing, Originally published in his 2016 book, &#8220;The Psalms in 150 Block Prints&#8221;</p>
             </div>
             <div class="dark-right">
-                <h2 class="dark-header">Background</h2>
-                <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                <div>
+                    <h2 class="dark-header">Psalm 59</h2>
+                    <p class="dark-subtitle">Kreg Yingst</p>
+                </div>
+                <p class="dark-body">&#8220;&#8230;he learned that some of the more fearsome psalms &#8212; the ones begging God to crush our enemies, and the ones that speak of dashing babies against rocks, are not what they first may seem. &#8216;I need to understand this is a spiritual language. I can&#8217;t let this bitterness take root in me but cut it off while it&#8217;s still a baby. I started reading the psalms that way.&#8217;&#8221;</p>
             </div>
         </div>
-        <p class="image-caption">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh</p>
     </section>
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
@@ -327,6 +380,36 @@
         window.addEventListener('resize', initDarkSectionOffset);
         initDarkSectionOffset();
         onScroll();
+
+        // --- Footnote system ---
+        (function() {
+            const panel = document.querySelector('.footnote-panel');
+            if (!panel) return;
+
+            document.querySelectorAll('.passage-text u').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    // Prevent duplicate footnotes for the same word/phrase
+                    const word = el.textContent.trim();
+                    const existing = panel.querySelectorAll('.footnote-anchor');
+                    for (let i = 0; i < existing.length; i++) {
+                        if (existing[i].textContent.trim() === word) return;
+                    }
+
+                    // Dim all existing footnotes
+                    panel.querySelectorAll('.footnote-item').forEach(function(fn) {
+                        fn.classList.add('dimmed');
+                    });
+
+                    // Create and append new footnote
+                    const item = document.createElement('div');
+                    item.className = 'footnote-item';
+                    item.innerHTML =
+                        '<span class="footnote-anchor">' + word + '</span>' +
+                        '<p class="footnote-text">' + (el.getAttribute('data-footnote') || '') + '</p>';
+                    panel.appendChild(item);
+                });
+            });
+        })();
     </script>
 </body>
 </html>

@@ -65,7 +65,9 @@
 
         .top-right {
             flex: 1;
-            padding-top: 100px;
+            position: relative;
+            height: 0;
+            overflow: visible;
         }
 
         .scripture-title {
@@ -163,6 +165,49 @@
             color: #e8e8e8;
         }
 
+        /* Underlined words are clickable */
+        .passage-text u {
+            cursor: pointer;
+        }
+
+        /* Footnote panel in right column */
+        .footnote-panel {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+        }
+
+        .footnote-item {
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .footnote-item.dimmed {
+            opacity: 0.3;
+        }
+
+        .footnote-anchor {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            text-decoration: underline;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .footnote-text {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #333;
+        }
+        .footnote-text::first-letter {
+            text-transform: uppercase;
+        }
+
         /* Side Navigation (Previous/Next) */
         .scripture-nav {
             position: fixed;
@@ -227,14 +272,11 @@
                 <h1 class="scripture-title">Proverbs 31:25</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    Strength and dignity are her clothing, and she laughs at the time to come.
+                    Strength and dignity are her clothing, and she <u data-footnote="The fact that she is willing to distribute and sell linen garments she makes, and has, shows that her first priority isn’t in what is in her closet or what she wears. When it comes to character, she is one of the best dressed, clothed with strength and honor, so that she shall rejoice not only in the present day, but also in time to come.">laughs</u> at the time to come.
                 </div>
             </div>
             <div class="top-right">
-                <!-- Body Text -->
-                <div class="body-text">
-                    Ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit
-                </div>
+                <div class="footnote-panel"></div>
             </div>
         </div>
     </main>
@@ -244,13 +286,13 @@
         <div class="dark-row">
             <div class="dark-img-wrap">
                 <img src="PHOTOS/09_Proverbs+31.webp" alt="Scripture illustration">
+                <p class="image-caption">Scribal Workshop (collective), Call her Blessed, Ink<br><br>Proverbs 31:28 in a French Gothic style, designed with a full vinework/acanthus border and a bold gothic hand. The designs are each drawn, inked with handmade iron gall ink, then gesso is laid down before gilding with 23+ karat gold and painted with egg tempera paint that is handmade with historic pigments all on goatskin parchment.</p>
             </div>
             <div class="dark-right">
-                <h2 class="dark-header">Background</h2>
-                <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                <h2 class="dark-header">The Wisdom of King Lemuel</h2>
+                <p class="dark-body">As with Agur in Proverbs 30, we don&#8217;t know anything about King Lemuel. He is not in any recorded list of the kings of Judah or Israel, so he was probably a pagan king who put his trust in Yahweh, the covenant God of Israel, and through the fear of the Lord learned wisdom. The name Lemuel means, belonging to God. There was no king of Israel (or Judah) with this name, so either he was a foreign king, or it is a pen name for the author. Several older commentators and Jewish legends often say Lemuel, the one belonging to God, was Solomon himself and his mother was Bathsheba.<br><br>&#8220;Jewish legend identifies Lemuel as Solomon and the advice as from Bathsheba from a time when Solomon indulged in magic with his Egyptian wife and delayed the morning sacrifices&#8230;. But there is no evidence for this.&#8221; (Ross)<br><br>&#8220;There have been many conjectures as to who King Lemuel was, but nothing certainly can be said.&#8221; (Morgan)<br><br>&#8220;With a minor punctuation change, however, one may translate v. 1a as, &#8216;The sayings of Lemuel, king of Massa,&#8217; instead of &#8216;The sayings of King Lemuel &#8212; an oracle.&#8217; McKane notes that Massa may have been a north Arabian tribe (Genesis 25:14; 1 Chronicles 1:30) and that several Aramaisms appear in the text.&#8221; (Garrett)</p>
             </div>
         </div>
-        <p class="image-caption">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh</p>
     </section>
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
@@ -327,6 +369,36 @@
         window.addEventListener('resize', initDarkSectionOffset);
         initDarkSectionOffset();
         onScroll();
+
+        // --- Footnote system ---
+        (function() {
+            const panel = document.querySelector('.footnote-panel');
+            if (!panel) return;
+
+            document.querySelectorAll('.passage-text u').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    // Prevent duplicate footnotes for the same word/phrase
+                    const word = el.textContent.trim();
+                    const existing = panel.querySelectorAll('.footnote-anchor');
+                    for (let i = 0; i < existing.length; i++) {
+                        if (existing[i].textContent.trim() === word) return;
+                    }
+
+                    // Dim all existing footnotes
+                    panel.querySelectorAll('.footnote-item').forEach(function(fn) {
+                        fn.classList.add('dimmed');
+                    });
+
+                    // Create and append new footnote
+                    const item = document.createElement('div');
+                    item.className = 'footnote-item';
+                    item.innerHTML =
+                        '<span class="footnote-anchor">' + word + '</span>' +
+                        '<p class="footnote-text">' + (el.getAttribute('data-footnote') || '') + '</p>';
+                    panel.appendChild(item);
+                });
+            });
+        })();
     </script>
 </body>
 </html>

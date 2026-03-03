@@ -65,7 +65,9 @@
 
         .top-right {
             flex: 1;
-            padding-top: 100px;
+            position: relative;
+            height: 0;
+            overflow: visible;
         }
 
         .scripture-title {
@@ -163,6 +165,49 @@
             color: #e8e8e8;
         }
 
+        /* Underlined words are clickable */
+        .passage-text u {
+            cursor: pointer;
+        }
+
+        /* Footnote panel in right column */
+        .footnote-panel {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+        }
+
+        .footnote-item {
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .footnote-item.dimmed {
+            opacity: 0.3;
+        }
+
+        .footnote-anchor {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            text-decoration: underline;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .footnote-text {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #333;
+        }
+        .footnote-text::first-letter {
+            text-transform: uppercase;
+        }
+
         /* Side Navigation (Previous/Next) */
         .scripture-nav {
             position: fixed;
@@ -227,14 +272,11 @@
                 <h1 class="scripture-title">Matthew 9:24</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    he said, "Go away, for the girl is not dead but sleeping." And they laughed at him.
+                    he said, "Go away, for the girl is not dead but sleeping." And <u data-footnote="These were probably paid mourners, who in the custom of the day offered an ostentatious display of mourning for a price, and not out of sincere sorrow. When we notice how quickly they moved from wailing to ridiculing Jesus, it showed their lack of sincerity.">they</u> <u data-footnote="Greek: katagelao; means to mock, ridicule, or hold someone in derision">laughed</u> at him.
                 </div>
             </div>
             <div class="top-right">
-                <!-- Body Text -->
-                <div class="body-text">
-                    Ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit
-                </div>
+                <div class="footnote-panel"></div>
             </div>
         </div>
     </main>
@@ -244,13 +286,13 @@
         <div class="dark-row">
             <div class="dark-img-wrap">
                 <img src="PHOTOS/20-Mathew.jpg" alt="Scripture illustration">
+                <p class="image-caption">Rembrandt, The Raising of the Daughter of Jairus, Pen and bistre, wash, in some places covered with white body-colour, c. 1660-62</p>
             </div>
             <div class="dark-right">
-                <h2 class="dark-header">Background</h2>
-                <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                <h2 class="dark-header">Matthew 9:18-26</h2>
+                <p class="dark-body">18 While he was saying these things to them, behold, a ruler came in and knelt before him, saying, &#8220;My daughter has just died, but come and lay your hand on her, and she will live.&#8221; 19 And Jesus rose and followed him, with his disciples. 20 And behold, a woman who had suffered from a discharge of blood for twelve years came up behind him and touched the fringe of his garment, 21 for she said to herself, &#8220;If I only touch his garment, I will be made well.&#8221; 22 Jesus turned, and seeing her he said, &#8220;Take heart, daughter; your faith has made you well.&#8221; And instantly the woman was made well. 23 And when Jesus came to the ruler&#8217;s house and saw the flute players and the crowd making a commotion, 24 he said, &#8220;Go away, for the girl is not dead but sleeping.&#8221; And they laughed at him. 25 But when the crowd had been put outside, he went in and took her by the hand, and the girl arose. 26 And the report of this went through all that district.</p>
             </div>
         </div>
-        <p class="image-caption">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh</p>
     </section>
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
@@ -327,6 +369,36 @@
         window.addEventListener('resize', initDarkSectionOffset);
         initDarkSectionOffset();
         onScroll();
+
+        // --- Footnote system ---
+        (function() {
+            const panel = document.querySelector('.footnote-panel');
+            if (!panel) return;
+
+            document.querySelectorAll('.passage-text u').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    // Prevent duplicate footnotes for the same word/phrase
+                    const word = el.textContent.trim();
+                    const existing = panel.querySelectorAll('.footnote-anchor');
+                    for (let i = 0; i < existing.length; i++) {
+                        if (existing[i].textContent.trim() === word) return;
+                    }
+
+                    // Dim all existing footnotes
+                    panel.querySelectorAll('.footnote-item').forEach(function(fn) {
+                        fn.classList.add('dimmed');
+                    });
+
+                    // Create and append new footnote
+                    const item = document.createElement('div');
+                    item.className = 'footnote-item';
+                    item.innerHTML =
+                        '<span class="footnote-anchor">' + word + '</span>' +
+                        '<p class="footnote-text">' + (el.getAttribute('data-footnote') || '') + '</p>';
+                    panel.appendChild(item);
+                });
+            });
+        })();
     </script>
 </body>
 </html>

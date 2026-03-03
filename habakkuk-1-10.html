@@ -65,7 +65,9 @@
 
         .top-right {
             flex: 1;
-            padding-top: 100px;
+            position: relative;
+            height: 0;
+            overflow: visible;
         }
 
         .scripture-title {
@@ -163,6 +165,49 @@
             color: #e8e8e8;
         }
 
+        /* Underlined words are clickable */
+        .passage-text u {
+            cursor: pointer;
+        }
+
+        /* Footnote panel in right column */
+        .footnote-panel {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+        }
+
+        .footnote-item {
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .footnote-item.dimmed {
+            opacity: 0.3;
+        }
+
+        .footnote-anchor {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            text-decoration: underline;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .footnote-text {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #333;
+        }
+        .footnote-text::first-letter {
+            text-transform: uppercase;
+        }
+
         /* Side Navigation (Previous/Next) */
         .scripture-nav {
             position: fixed;
@@ -227,14 +272,11 @@
                 <h1 class="scripture-title">Habakkuk 1:10</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    At kings they scoff, and at rulers they laugh. They laugh at every fortress, for they pile up earth and take it.
+                    At kings they scoff, and at rulers they <u data-footnote="or “scorn”; The Hebrew use the singular number here, (He shall scoff, &amp;c.,) as well as in the following verse, and it is to be understood of the king of Babylon, who treated the kings he conquered with scorn and contempt.">laugh</u>. They <u data-footnote="or “scorn”; The Hebrew use the singular number here, (He shall scoff, &amp;c.,) as well as in the following verse, and it is to be understood of the king of Babylon, who treated the kings he conquered with scorn and contempt.">laugh</u> at every fortress, for they pile up earth and take it.
                 </div>
             </div>
             <div class="top-right">
-                <!-- Body Text -->
-                <div class="body-text">
-                    Ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit
-                </div>
+                <div class="footnote-panel"></div>
             </div>
         </div>
     </main>
@@ -244,13 +286,13 @@
         <div class="dark-row">
             <div class="dark-img-wrap">
                 <img src="PHOTOS/19-Habakkuk.jpg" alt="Scripture illustration">
+                <p class="image-caption">British (English) School, The Prophet Habakkuk, oil on panel, c.1610/1615</p>
             </div>
             <div class="dark-right">
-                <h2 class="dark-header">Background</h2>
-                <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                <h2 class="dark-header">Background for Habakkuk</h2>
+                <p class="dark-body">We don&#8217;t know much about the prophet Habakkuk from any other book in the Bible. Since he prophesied the coming Babylonian army and its destruction of Judah, he prophesied some time before that invasion. Many think that Habakkuk ministered sometime during the reign of King Jehoiakim, perhaps around the year 607 B.C. Since he speaks of God raising up the Babylonians (Habakkuk 1:6), we can guess that he wrote in the 25-year period between the time when Babylon conquered Nineveh and the Assyrian Empire (612 B.C.) and the time when Babylon conquered Jerusalem (587 B.C.).<br><br>We don&#8217;t know how old Habakkuk was when he gave this prophecy, but it is likely that he lived during the time of godly king Josiah (640 to 609 B.C.) and then gave this prophecy during the reign of one of Josiah&#8217;s successors. Habakkuk knew what it was like to live during a time of revival, and then to see God&#8217;s people and the nation slip into lethargy and sin. &#8220;Habakkuk had a problem. He had lived through a period of national revival followed by a period of spiritual decline&#8221; (Boice).</p>
             </div>
         </div>
-        <p class="image-caption">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh</p>
     </section>
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
@@ -327,6 +369,36 @@
         window.addEventListener('resize', initDarkSectionOffset);
         initDarkSectionOffset();
         onScroll();
+
+        // --- Footnote system ---
+        (function() {
+            const panel = document.querySelector('.footnote-panel');
+            if (!panel) return;
+
+            document.querySelectorAll('.passage-text u').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    // Prevent duplicate footnotes for the same word/phrase
+                    const word = el.textContent.trim();
+                    const existing = panel.querySelectorAll('.footnote-anchor');
+                    for (let i = 0; i < existing.length; i++) {
+                        if (existing[i].textContent.trim() === word) return;
+                    }
+
+                    // Dim all existing footnotes
+                    panel.querySelectorAll('.footnote-item').forEach(function(fn) {
+                        fn.classList.add('dimmed');
+                    });
+
+                    // Create and append new footnote
+                    const item = document.createElement('div');
+                    item.className = 'footnote-item';
+                    item.innerHTML =
+                        '<span class="footnote-anchor">' + word + '</span>' +
+                        '<p class="footnote-text">' + (el.getAttribute('data-footnote') || '') + '</p>';
+                    panel.appendChild(item);
+                });
+            });
+        })();
     </script>
 </body>
 </html>

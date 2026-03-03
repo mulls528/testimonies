@@ -65,7 +65,9 @@
 
         .top-right {
             flex: 1;
-            padding-top: 100px;
+            position: relative;
+            height: 0;
+            overflow: visible;
         }
 
         .scripture-title {
@@ -156,11 +158,62 @@
             color: #e8e8e8;
         }
 
+        .dark-subtitle {
+            font-size: 1.2rem;
+            font-weight: 400;
+            line-height: 1.3;
+            color: #e8e8e8;
+            margin-top: 8px;
+        }
+
         .dark-body {
             font-size: 1.2rem;
             font-weight: 400;
             line-height: 1.3;
             color: #e8e8e8;
+        }
+
+        /* Underlined words are clickable */
+        .passage-text u {
+            cursor: pointer;
+        }
+
+        /* Footnote panel in right column */
+        .footnote-panel {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+        }
+
+        .footnote-item {
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .footnote-item.dimmed {
+            opacity: 0.3;
+        }
+
+        .footnote-anchor {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            text-decoration: underline;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .footnote-text {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #333;
+        }
+        .footnote-text::first-letter {
+            text-transform: uppercase;
         }
 
         /* Side Navigation (Previous/Next) */
@@ -227,14 +280,11 @@
                 <h1 class="scripture-title">Psalm 126:2</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    Then our mouth was filled with laughter, and our tongue with shouts of joy; then they said among the nations, "The Lord has done great things for them."
+                    Then our mouth was filled with <u data-footnote="“The mercy was so unexpected, so amazing, so singular that they could not do less than laugh; and they laughed much, so that their mouths were full of it, and that because their hearts were full too.” (Spurgeon)">laughter</u>, and our tongue with shouts of joy; then they said among the nations, <u data-footnote="This psalm is titled A Song of Ascents. It is the seventh in the series of 15 songs for pilgrims coming to Jerusalem. This song likely was composed after the exile, in wondrous gratitude for God’s restoration, and in prayer for a furtherance of that work.">"The Lord has done great things for them."</u>
                 </div>
             </div>
             <div class="top-right">
-                <!-- Body Text -->
-                <div class="body-text">
-                    Ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit
-                </div>
+                <div class="footnote-panel"></div>
             </div>
         </div>
     </main>
@@ -244,11 +294,11 @@
         <div class="dark-left">
                 <img src="PHOTOS/13-psalm126.jpg" alt="Scripture illustration">
                 <img src="PHOTOS/12-psalm126.jpg" alt="Scripture illustration">
-            <p class="image-caption">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh</p>
+            <p class="image-caption">Christa Rosier, Psalm 126 (diptych), Mixed media, 2008</p>
         </div>
         <div class="dark-right">
             <h2 class="dark-header">Background</h2>
-            <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+            <p class="dark-body">The left hand painting is empty, lonely and sad: central to this theme stands a woman dressed in tears. In the composition of the painting something is clearly missing. The woman sows into dry, infertile land. Cracks are visible in her surroundings and in her very being. This is a broken-hearted woman trying against all odds to bring forth good out of the desert of her life.<br><br>What does she sow? Faith? Hope? Thankfulness to God, despite all? If this was the only picture it would portrait a bleak, hopeless existence. Praise God, there is and will be more! On the second canvas is shown God bringing the miracle of growth and resulting fruit to a barren land. Though the cracks are still visible, the young man holds in his arm the proof of a harvest sown in tears. About to face the Eternal One his mouth is now turned in laughter and the sheaf he presents shows no signs of the former brokenness.<br><br>The fruit of faith is perfect and whole.</p>
         </div>
     </section>
     <!-- Previous/Next Navigation -->
@@ -326,6 +376,36 @@
         window.addEventListener('resize', initDarkSectionOffset);
         initDarkSectionOffset();
         onScroll();
+
+        // --- Footnote system ---
+        (function() {
+            const panel = document.querySelector('.footnote-panel');
+            if (!panel) return;
+
+            document.querySelectorAll('.passage-text u').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    // Prevent duplicate footnotes for the same word/phrase
+                    const word = el.textContent.trim();
+                    const existing = panel.querySelectorAll('.footnote-anchor');
+                    for (let i = 0; i < existing.length; i++) {
+                        if (existing[i].textContent.trim() === word) return;
+                    }
+
+                    // Dim all existing footnotes
+                    panel.querySelectorAll('.footnote-item').forEach(function(fn) {
+                        fn.classList.add('dimmed');
+                    });
+
+                    // Create and append new footnote
+                    const item = document.createElement('div');
+                    item.className = 'footnote-item';
+                    item.innerHTML =
+                        '<span class="footnote-anchor">' + word + '</span>' +
+                        '<p class="footnote-text">' + (el.getAttribute('data-footnote') || '') + '</p>';
+                    panel.appendChild(item);
+                });
+            });
+        })();
     </script>
 </body>
 </html>

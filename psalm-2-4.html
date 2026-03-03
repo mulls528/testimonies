@@ -65,7 +65,9 @@
 
         .top-right {
             flex: 1;
-            padding-top: 100px;
+            position: relative;
+            height: 0;
+            overflow: visible;
         }
 
         .scripture-title {
@@ -163,6 +165,49 @@
             color: #e8e8e8;
         }
 
+        /* Underlined words are clickable */
+        .passage-text u {
+            cursor: pointer;
+        }
+
+        /* Footnote panel in right column */
+        .footnote-panel {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+        }
+
+        .footnote-item {
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .footnote-item.dimmed {
+            opacity: 0.3;
+        }
+
+        .footnote-anchor {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            text-decoration: underline;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .footnote-text {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #333;
+        }
+        .footnote-text::first-letter {
+            text-transform: uppercase;
+        }
+
         /* Side Navigation (Previous/Next) */
         .scripture-nav {
             position: fixed;
@@ -227,14 +272,11 @@
                 <h1 class="scripture-title">Psalm 2:4</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    He who sits in the heavens laughs; the Lord holds them in derision.
+                    He who sits in the heavens <u data-footnote="God looks at the way man plots against Him and He laughs. God isn’t afraid or confused or depressed about the opposition of man. God laughs at it.">laughs</u>; the Lord holds them in <u data-footnote="“This derisive laughter of God is the comfort of all those who love righteousness. It is the laughter of the might of holiness; it is the laughter of the strength of love. God does not exult over the sufferings of sinning men. He does hold in derision all the proud boastings and violence of such as seek to prevent His accomplishment of His will.” - Campbell Morgan, Searchlights from the Word (New York: Revell, 1926)">derision</u>.
                 </div>
             </div>
             <div class="top-right">
-                <!-- Body Text -->
-                <div class="body-text">
-                    Ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit
-                </div>
+                <div class="footnote-panel"></div>
             </div>
         </div>
     </main>
@@ -244,13 +286,13 @@
         <div class="dark-row">
             <div class="dark-img-wrap">
                 <img src="PHOTOS/06_Psalm-2-etching.jpg" alt="Scripture illustration">
+                <p class="image-caption">Marc Chagall, Psalm 2, Etching, 1978<br><br>Titled Psalm 2, the etching shows images based on the artist&#8217;s interpretation of the psalm. This etching was one of 32 from the 1979 book, The Psalms of David, published by Gerald Cramer.</p>
             </div>
             <div class="dark-right">
-                <h2 class="dark-header">Background</h2>
-                <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                <h2 class="dark-header">The Book of Psalms</h2>
+                <p class="dark-body">The book of Psalms is filled with the songs and prayers offered to God by the nation of Israel. Their expressions of praise, faith, sorrow, and frustration cover the range of human emotions. Some of the Psalms dwell on the treasure of wisdom and God&#8217;s Word. Others reveal the troubled heart of a mourner. Still others explode with praise to God and invite others to join in song. This diversity is unified by one element: they are centered upon God. Many of the Psalms are attributed to King David. The writing and collection of the Psalms into their present form spans the fifteenth to the third centuries B.C.<br><br>Like many psalms, the theme of Psalm 2 is emphasized in the final verse. We can defy God and perish, or we can surrender to Him and be blessed. The psalm itself does not identify its author, but Acts 4:25-26 clearly attributes it to David.</p>
             </div>
         </div>
-        <p class="image-caption">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh</p>
     </section>
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
@@ -327,6 +369,36 @@
         window.addEventListener('resize', initDarkSectionOffset);
         initDarkSectionOffset();
         onScroll();
+
+        // --- Footnote system ---
+        (function() {
+            const panel = document.querySelector('.footnote-panel');
+            if (!panel) return;
+
+            document.querySelectorAll('.passage-text u').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    // Prevent duplicate footnotes for the same word/phrase
+                    const word = el.textContent.trim();
+                    const existing = panel.querySelectorAll('.footnote-anchor');
+                    for (let i = 0; i < existing.length; i++) {
+                        if (existing[i].textContent.trim() === word) return;
+                    }
+
+                    // Dim all existing footnotes
+                    panel.querySelectorAll('.footnote-item').forEach(function(fn) {
+                        fn.classList.add('dimmed');
+                    });
+
+                    // Create and append new footnote
+                    const item = document.createElement('div');
+                    item.className = 'footnote-item';
+                    item.innerHTML =
+                        '<span class="footnote-anchor">' + word + '</span>' +
+                        '<p class="footnote-text">' + (el.getAttribute('data-footnote') || '') + '</p>';
+                    panel.appendChild(item);
+                });
+            });
+        })();
     </script>
 </body>
 </html>

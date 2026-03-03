@@ -65,7 +65,9 @@
 
         .top-right {
             flex: 1;
-            padding-top: 100px;
+            position: relative;
+            height: 0;
+            overflow: visible;
         }
 
         .scripture-title {
@@ -163,6 +165,49 @@
             color: #e8e8e8;
         }
 
+        /* Underlined words are clickable */
+        .passage-text u {
+            cursor: pointer;
+        }
+
+        /* Footnote panel in right column */
+        .footnote-panel {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+        }
+
+        .footnote-item {
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .footnote-item.dimmed {
+            opacity: 0.3;
+        }
+
+        .footnote-anchor {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            text-decoration: underline;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .footnote-text {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #333;
+        }
+        .footnote-text::first-letter {
+            text-transform: uppercase;
+        }
+
         /* Side Navigation (Previous/Next) */
         .scripture-nav {
             position: fixed;
@@ -227,14 +272,11 @@
                 <h1 class="scripture-title">Job 5:22</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    At destruction and famine you shall laugh, and shall not fear the beasts of the earth.
+                    At destruction and famine you shall <u data-footnote="In this particular verse, Eliphaz, one of Job’s friends, is speaking to him and offering him words of encouragement and comfort. Eliphaz is urging Job to trust in God during times of trouble, assuring him that God will protect and provide for him, even in the face of destruction, famine, and wild animals.">laugh</u>, and shall not fear the beasts of the earth.
                 </div>
             </div>
             <div class="top-right">
-                <!-- Body Text -->
-                <div class="body-text">
-                    Ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit
-                </div>
+                <div class="footnote-panel"></div>
             </div>
         </div>
     </main>
@@ -244,13 +286,13 @@
         <div class="dark-row">
             <div class="dark-img-wrap">
                 <img src="PHOTOS/03_Job_Linocut.jpg" alt="Scripture illustration">
+                <p class="image-caption">John Abell, The Book of Job, Linocut, Published in 2016<br><br>John Abell takes on the challenging narrative in linocut images throughout which express the harrowing events of a life being reduced to nothing from such comfortable heights and then suddenly reversed.</p>
             </div>
             <div class="dark-right">
-                <h2 class="dark-header">Background</h2>
-                <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                <h2 class="dark-header">The Book of Job</h2>
+                <p class="dark-body">As the first poetic book of the English Bible, Job introduces the reader to the idea of Hebrew poetry, which involves the repetition and combination of ideas more than sounds. The author, date, and place of the Book of Job are all uncertain. It may be that Job himself recorded his experiences in the book, or there may well have been another anonymous author. Judging by the style of the Hebrew it uses, some scholars judge Job to be the oldest book of the Old Testament. The Book of Job is not primarily about one man&#8217;s suffering and pain; Job&#8217;s problem is not so much financial or social or medical; his central problem is theological. Job must deal with the fact that in his life, God does not act the way he always thought God would and should act. In this drama, the Book of Job is not so much a record of solutions and explanations to this problem; it is more a revelation of Job&#8217;s experience and the answers carried within his experience.</p>
             </div>
         </div>
-        <p class="image-caption">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh</p>
     </section>
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
@@ -327,6 +369,36 @@
         window.addEventListener('resize', initDarkSectionOffset);
         initDarkSectionOffset();
         onScroll();
+
+        // --- Footnote system ---
+        (function() {
+            const panel = document.querySelector('.footnote-panel');
+            if (!panel) return;
+
+            document.querySelectorAll('.passage-text u').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    // Prevent duplicate footnotes for the same word/phrase
+                    const word = el.textContent.trim();
+                    const existing = panel.querySelectorAll('.footnote-anchor');
+                    for (let i = 0; i < existing.length; i++) {
+                        if (existing[i].textContent.trim() === word) return;
+                    }
+
+                    // Dim all existing footnotes
+                    panel.querySelectorAll('.footnote-item').forEach(function(fn) {
+                        fn.classList.add('dimmed');
+                    });
+
+                    // Create and append new footnote
+                    const item = document.createElement('div');
+                    item.className = 'footnote-item';
+                    item.innerHTML =
+                        '<span class="footnote-anchor">' + word + '</span>' +
+                        '<p class="footnote-text">' + (el.getAttribute('data-footnote') || '') + '</p>';
+                    panel.appendChild(item);
+                });
+            });
+        })();
     </script>
 </body>
 </html>
