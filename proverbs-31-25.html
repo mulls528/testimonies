@@ -179,7 +179,7 @@
         }
 
         .footnote-item {
-            margin-bottom: 10px;
+            margin-bottom: 24px;
             opacity: 1;
             transition: opacity 0.4s ease;
         }
@@ -350,6 +350,7 @@
         function onScroll() {
             updateFadeOnScroll();
             updateImageFloat();
+            updateDarkFixed();
         }
 
         // --- Position dark section so it peeks ~15% from bottom on load ---
@@ -365,9 +366,60 @@
             }
         }
 
+        let darkPlaceholderTop = 0;
+
+        function initDarkFixed() {
+            const dark = document.querySelector('.dark-section');
+            if (!dark) return;
+            const existing = document.getElementById('dark-placeholder');
+            if (existing) existing.remove();
+            dark.style.position = '';
+            dark.style.height = '';
+            dark.style.transform = '';
+            dark.style.boxShadow = '';
+            const contentEl = document.querySelector('.content');
+            if (contentEl) contentEl.style.filter = '';
+            const vh = window.innerHeight;
+            const peekHeight = Math.round(vh * 0.03);
+            const placeholder = document.createElement('div');
+            placeholder.id = 'dark-placeholder';
+            placeholder.style.height = vh + 'px';
+            placeholder.style.marginTop = dark.style.marginTop || '0px';
+            dark.style.marginTop = '0';
+            dark.before(placeholder);
+            darkPlaceholderTop = placeholder.offsetTop;
+            dark.style.position = 'fixed';
+            dark.style.bottom = '0';
+            dark.style.left = '0';
+            dark.style.width = '100%';
+            dark.style.height = vh + 'px';
+            dark.style.transform = 'translateY(' + (vh - peekHeight) + 'px)';
+        }
+
+        function updateDarkFixed() {
+            const dark = document.querySelector('.dark-section');
+            if (!dark || !darkPlaceholderTop) return;
+            const vh = window.innerHeight;
+            const peekHeight = Math.round(vh * 0.03);
+            const progress = Math.max(0, Math.min(1, window.scrollY / (darkPlaceholderTop * 0.6)));
+            dark.style.transform = 'translateY(' + ((vh - peekHeight) * (1 - progress)) + 'px)';
+            // Float: shadow above the panel grows with progress
+            const sBlur = Math.round(50 * progress);
+            const sOpacity = (0.45 * progress).toFixed(2);
+            dark.style.boxShadow = '0 -' + Math.round(20 * progress) + 'px ' + sBlur + 'px rgba(0,0,0,' + sOpacity + ')';
+            // Blur out the grey/white content behind
+            const content = document.querySelector('.content');
+            if (content) content.style.filter = 'blur(' + (12 * Math.sqrt(progress)).toFixed(1) + 'px)';
+        }
+
         window.addEventListener('scroll', onScroll);
-        window.addEventListener('resize', initDarkSectionOffset);
+        window.addEventListener('resize', function() {
+            initDarkSectionOffset();
+            initDarkFixed();
+            onScroll();
+        });
         initDarkSectionOffset();
+        initDarkFixed();
         onScroll();
 
         // --- Footnote system ---

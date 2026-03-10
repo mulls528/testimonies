@@ -496,6 +496,7 @@
         function showTestimoniesPage() {
             textPage.classList.remove('visible');
             testimoniesPage.style.display = 'block';
+            updateFadeOnScroll(); // recalculate opacity now that page is visible
             // Update active states
             textNav.classList.remove('active');
             testimoniesNav.classList.add('active');
