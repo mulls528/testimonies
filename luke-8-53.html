@@ -136,7 +136,7 @@
         }
 
         .image-caption {
-            font-size: 1rem;
+            font-size: 0.75rem;
             font-weight: 400;
             color: #999;
             line-height: 1.4;
@@ -366,6 +366,7 @@
             dark.style.boxShadow = '';
             const contentEl = document.querySelector('.content');
             if (contentEl) contentEl.style.filter = '';
+
             const vh = window.innerHeight;
             const peekHeight = Math.round(vh * 0.03);
             const placeholder = document.createElement('div');
@@ -394,7 +395,7 @@
             const sBlur = Math.round(50 * progress);
             const sOpacity = (0.45 * progress).toFixed(2);
             dark.style.boxShadow = '0 -' + Math.round(20 * progress) + 'px ' + sBlur + 'px rgba(0,0,0,' + sOpacity + ')';
-            // Blur out the grey/white content behind
+            // Blur the content so it reads as blurred beneath the glass
             const content = document.querySelector('.content');
             if (content) content.style.filter = 'blur(' + (12 * Math.sqrt(progress)).toFixed(1) + 'px)';
         }

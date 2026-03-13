@@ -136,7 +136,7 @@
         }
 
         .image-caption {
-            font-size: 1rem;
+            font-size: 0.75rem;
             font-weight: 400;
             color: #999;
             line-height: 1.4;
@@ -390,6 +390,7 @@
             dark.style.boxShadow = '';
             const contentEl = document.querySelector('.content');
             if (contentEl) contentEl.style.filter = '';
+
             const vh = window.innerHeight;
             const peekHeight = Math.round(vh * 0.03);
             const placeholder = document.createElement('div');
