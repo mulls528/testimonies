@@ -29,7 +29,7 @@
             display: flex;
             justify-content: space-between;
             box-sizing: border-box;
-            z-index: 1000;
+            z-index: 1003;
         }
 
         .nav-btn {
@@ -98,15 +98,15 @@
         }
 
         .body-text {
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 400;
             line-height: 1.3;
         }
 
         /* Dark image section */
         .dark-section {
-            background: #1a1a1a;
-            color: #e8e8e8;
+            background: transparent;
+            color: #333;
             padding: 80px 200px 80px 140px;
             position: relative;
             overflow: visible;
@@ -116,53 +116,83 @@
         /* Single flex row: image + right text, header top-aligned, body bottom-aligned */
         .dark-row {
             display: flex;
-            gap: 60px;
+            gap: 30px;
             align-items: stretch;
         }
 
         .dark-img-wrap {
             flex: 1;
             position: relative;
+            display: grid;
+            cursor: pointer;
         }
 
         .dark-img-wrap img {
+            grid-area: 1 / 1;
             width: 100%;
             height: auto;
             display: block;
             will-change: transform;
             position: relative;
             z-index: 2;
-            transition: transform 0.1s linear;
+            transition: transform 0.1s linear, opacity 0.3s ease;
         }
 
         .image-caption {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: #999;
-            line-height: 1.4;
-            margin-top: 16px;
+            grid-area: 1 / 1;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 2px solid #1a1a1a;
+            background: #e8e8e8;
+            padding: 2rem;
+            font-size: 2rem;
+            font-weight: 500;
+            line-height: 1.0;
+            color: #333;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .dark-img-wrap:hover img {
+            opacity: 0;
+        }
+
+        .dark-img-wrap:hover .image-caption {
+            opacity: 1;
         }
 
         .dark-right {
             flex: 1.5;
-            color: #e8e8e8;
+            color: #333;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
         }
 
         .dark-header {
-            font-size: 3rem;
-            font-weight: 500;
+            font-size: 1.5rem;
+            font-weight: 600;
             line-height: 1.1;
-            color: #e8e8e8;
+            color: #333;
+            text-transform: uppercase;
+            white-space: nowrap;
+            margin-bottom: 40px;
         }
 
         .dark-body {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 400;
-            line-height: 1.3;
-            color: #e8e8e8;
+            line-height: 1.2;
+            color: #333;
         }
 
         /* Underlined words are clickable */
@@ -190,16 +220,16 @@
 
         .footnote-anchor {
             display: block;
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 600;
             line-height: 1.1;
             text-decoration: underline;
-            margin-bottom: 4px;
+            margin-bottom: 14px;
             color: #333;
         }
 
         .footnote-text {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 400;
             line-height: 1.2;
             color: #333;
@@ -216,6 +246,7 @@
             right: 0;
             bottom: 0;
             pointer-events: none;
+            z-index: 1002;
         }
 
         .nav-prev, .nav-next {
@@ -249,6 +280,33 @@
             opacity: 0.5;
         }
 
+        /* Lightbox */
+        #lightbox-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #lightbox-overlay.active {
+            display: flex;
+        }
+
+        #lightbox-overlay img {
+            max-height: calc(100vh - 80px);
+            max-width: calc(100vw - 80px);
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            cursor: default;
+        }
+
         /* Scroll Fade */
         .top-left,
         .top-right,
@@ -260,8 +318,8 @@
 <body>
     <!-- Fixed Header -->
     <header class="page-header">
-        <a href="index.html#textPage" class="nav-btn">Text</a>
         <a href="index.html#testimoniesPage" class="nav-btn">Testimony</a>
+        <a href="index.html#textPage" class="nav-btn">Text</a>
     </header>
 
     <!-- Main Content -->
@@ -290,10 +348,15 @@
             </div>
             <div class="dark-right">
                 <h2 class="dark-header">Key Differences in the Matthew and Mark Accounts</h2>
-                <p class="dark-body">State of the Daughter: In Mark, Jairus states his daughter is &#8220;at the point of death&#8221; (Mark 5:23), and she dies while they are walking. In Matthew, the father says, &#8220;My daughter has just died&#8221; (Matthew 9:18), making the miracle a resurrection from the outset.<br><br>Narrative Length and Detail: Mark (5:21&#8211;43) is much longer, detailing the crowd and the woman with the flow of blood. Matthew (9:18&#8211;26) is heavily compressed, removing the messengers who inform Jairus of his daughter&#8217;s death.<br><br>Identification of the Ruler: Mark identifies the man by name as Jairus and mentions he is a synagogue ruler. Matthew calls him an &#8220;unnamed ruler&#8221;.<br><br>Jesus&#8217;s Actions: Mark includes the detail that Jesus took the girl by the hand and said, &#8220;Talitha cumi&#8221; (Little girl, I say to you, arise), and that she walked. Matthew focuses on Jesus taking her hand to lift her.<br><br>Reaction of the Crowd: Mark notes the crowd was weeping and wailing, and later, they were &#8220;overcome with amazement&#8221;. Matthew mentions flute players and a noisy crowd, and notes that the report of the healing spread throughout the district.<br><br>The Follow-up: Both accounts mention Jesus telling the parents not to tell anyone, but Mark includes the detail that he ordered food to be given to the girl.</p>
+                <p class="dark-body"><span style="font-weight: 600;">State of the Daughter:</span> In Mark, Jairus states his daughter is &#8220;at the point of death&#8221; (Mark 5:23), and she dies while they are walking. In Matthew, the father says, &#8220;My daughter has just died&#8221; (Matthew 9:18), making the miracle a resurrection from the outset.<br><br><span style="font-weight: 600;">Narrative Length and Detail:</span> Mark (5:21&#8211;43) is much longer, detailing the crowd and the woman with the flow of blood. Matthew (9:18&#8211;26) is heavily compressed, removing the messengers who inform Jairus of his daughter&#8217;s death.<br><br><span style="font-weight: 600;">Identification of the Ruler:</span> Mark identifies the man by name as Jairus and mentions he is a synagogue ruler. Matthew calls him an &#8220;unnamed ruler&#8221;.<br><br><span style="font-weight: 600;">Jesus&#8217;s Actions:</span> Mark includes the detail that Jesus took the girl by the hand and said, &#8220;Talitha cumi&#8221; (Little girl, I say to you, arise), and that she walked. Matthew focuses on Jesus taking her hand to lift her.<br><br><span style="font-weight: 600;">Reaction of the Crowd:</span> Mark notes the crowd was weeping and wailing, and later, they were &#8220;overcome with amazement&#8221;. Matthew mentions flute players and a noisy crowd, and notes that the report of the healing spread throughout the district.<br><br><span style="font-weight: 600;">The Follow-up:</span> Both accounts mention Jesus telling the parents not to tell anyone, but Mark includes the detail that he ordered food to be given to the girl.</p>
             </div>
         </div>
     </section>
+    <!-- Lightbox Overlay -->
+    <div id="lightbox-overlay">
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
         <a href="matthew-9-24.html" class="nav-prev">Matthew 9:24</a>
@@ -404,13 +467,9 @@
             const peekHeight = Math.round(vh * 0.03);
             const progress = Math.max(0, Math.min(1, window.scrollY / (darkPlaceholderTop * 0.6)));
             dark.style.transform = 'translateY(' + ((vh - peekHeight) * (1 - progress)) + 'px)';
-            // Float: shadow above the panel grows with progress
-            const sBlur = Math.round(50 * progress);
-            const sOpacity = (0.45 * progress).toFixed(2);
-            dark.style.boxShadow = '0 -' + Math.round(20 * progress) + 'px ' + sBlur + 'px rgba(0,0,0,' + sOpacity + ')';
-            // Blur the content so it reads as blurred beneath the glass
+            // Blur the content so the overlaid text is readable
             const content = document.querySelector('.content');
-            if (content) content.style.filter = 'blur(' + (12 * Math.sqrt(progress)).toFixed(1) + 'px)';
+            if (content) content.style.filter = 'blur(' + (20 * Math.sqrt(progress)).toFixed(1) + 'px)';
         }
 
         window.addEventListener('scroll', onScroll);
@@ -422,6 +481,29 @@
         initDarkSectionOffset();
         initDarkFixed();
         onScroll();
+
+        // --- Lightbox ---
+        (function() {
+            const overlay = document.getElementById('lightbox-overlay');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const wraps = document.querySelectorAll('.dark-img-wrap');
+            if (!overlay || !wraps.length) return;
+
+            wraps.forEach(function(wrap) {
+                const srcImg = wrap.querySelector('img');
+                if (!srcImg) return;
+                wrap.addEventListener('click', function() {
+                    lightboxImg.src = srcImg.src;
+                    overlay.classList.add('active');
+                });
+            });
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target !== lightboxImg) {
+                    overlay.classList.remove('active');
+                }
+            });
+        })();
 
         // --- Footnote system ---
         (function() {

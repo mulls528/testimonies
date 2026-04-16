@@ -29,7 +29,7 @@
             display: flex;
             justify-content: space-between;
             box-sizing: border-box;
-            z-index: 1000;
+            z-index: 1003;
         }
 
         .nav-btn {
@@ -98,15 +98,15 @@
         }
 
         .body-text {
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 400;
             line-height: 1.3;
         }
 
         /* Dark image section */
         .dark-section {
-            background: #1a1a1a;
-            color: #e8e8e8;
+            background: transparent;
+            color: #333;
             padding: 80px 200px 80px 140px;
             position: relative;
             overflow: visible;
@@ -118,34 +118,59 @@
             display: flex;
             gap: 60px;
             align-items: stretch;
+            justify-content: center;
         }
 
         .dark-img-wrap {
-            flex: 1;
+            flex: none;
+            width: 38%;
             position: relative;
+            display: grid;
+            cursor: pointer;
         }
 
         .dark-img-wrap img {
+            grid-area: 1 / 1;
             width: 100%;
             height: auto;
             display: block;
             will-change: transform;
             position: relative;
             z-index: 2;
-            transition: transform 0.1s linear;
+            transition: transform 0.1s linear, opacity 0.3s ease;
         }
 
         .image-caption {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: #999;
-            line-height: 1.4;
-            margin-top: 16px;
+            grid-area: 1 / 1;
+            height: 100%;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 2px solid #1a1a1a;
+            background: #e8e8e8;
+            padding: 2rem;
+            font-size: 2rem;
+            font-weight: 500;
+            line-height: 1.0;
+            color: #333;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .dark-img-wrap:hover img {
+            opacity: 0;
+        }
+
+        .dark-img-wrap:hover .image-caption {
+            opacity: 1;
         }
 
         .dark-right {
             flex: 1.5;
-            color: #e8e8e8;
+            color: #333;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -155,14 +180,14 @@
             font-size: 3rem;
             font-weight: 500;
             line-height: 1.1;
-            color: #e8e8e8;
+            color: #333;
         }
 
         .dark-body {
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 400;
             line-height: 1.3;
-            color: #e8e8e8;
+            color: #333;
         }
 
         /* Underlined words are clickable */
@@ -190,16 +215,16 @@
 
         .footnote-anchor {
             display: block;
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 600;
             line-height: 1.1;
             text-decoration: underline;
-            margin-bottom: 4px;
+            margin-bottom: 14px;
             color: #333;
         }
 
         .footnote-text {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 400;
             line-height: 1.2;
             color: #333;
@@ -216,6 +241,7 @@
             right: 0;
             bottom: 0;
             pointer-events: none;
+            z-index: 1002;
         }
 
         .nav-prev, .nav-next {
@@ -249,6 +275,33 @@
             opacity: 0.5;
         }
 
+        /* Lightbox */
+        #lightbox-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #lightbox-overlay.active {
+            display: flex;
+        }
+
+        #lightbox-overlay img {
+            max-height: calc(100vh - 80px);
+            max-width: calc(100vw - 80px);
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            cursor: default;
+        }
+
         /* Scroll Fade */
         .top-left,
         .top-right,
@@ -260,8 +313,8 @@
 <body>
     <!-- Fixed Header -->
     <header class="page-header">
-        <a href="index.html#textPage" class="nav-btn">Text</a>
         <a href="index.html#testimoniesPage" class="nav-btn">Testimony</a>
+        <a href="index.html#textPage" class="nav-btn">Text</a>
     </header>
 
     <!-- Main Content -->
@@ -272,8 +325,7 @@
                 <h1 class="scripture-title">Ecclesiastes 7:3-6</h1>
                 <!-- Passage Text (large) -->
                 <div class="passage-text">
-                    <span class="verse-num">3</span> <u data-footnote="The Preacher goes against all intuition; who among us would say this? Yet he is determined to sweep away our illusions and wishes about the nature of life in his under the sun premise.">Sorrow is better than laughter</u>, for by sadness of face the heart is made glad. <span class="verse-num">4</span> <u data-footnote="“Some of the old Romish monks always read their Bibles with a candle stuck in a skull. The light from a death’s head may be an awful one, but it is a very profitable one.” (Spurgeon)">The heart of the wise is in the house of mourning</u>, but the heart of fools is in the house of mirth. <span class="verse-num">5</span> It is better for a man to hear the rebuke of the wise than to hear the song of fools. <span class="verse-num">6</span> For as the crackling of thorns under a pot, so is the <u data-footnote="“The pun ‘Like the sound of sirim (thorns) under the sir (pot, cauldron)’ is caught by Moffatt’s Like nettles crackling under kettles. Thorns were a rapidly burning, easily extinguishable fuel in the ancient world.” (Eaton)">laughter</u> of the fools; this also is vanity.
-                </div>
+                    <span class="verse-num">3</span> <u data-footnote="The Preacher goes against all intuition; who among us would say this? Yet he is determined to sweep away our illusions and wishes about the nature of life in his under the sun premise.">Sorrow is better than laughter</u>, for by sadness of face the heart is made glad.<br><span class="verse-num">4</span> <u data-footnote="“Some of the old Romish monks always read their Bibles with a candle stuck in a skull. The light from a death’s head may be an awful one, but it is a very profitable one.” (Spurgeon)">The heart of the wise is in the house of mourning</u>, but the heart of fools is in the house of mirth.                </div>
             </div>
             <div class="top-right">
                 <div class="footnote-panel"></div>
@@ -288,12 +340,13 @@
                 <img src="PHOTOS/18-ecclesiastes_drawing1_021119.jpg" alt="Scripture illustration">
                 <p class="image-caption">John August Swanson, Ecclesiastes, Pen Drawing on Mylar, 2019<br><br>Indicating changes to be made for a new giclee edition of the artwork</p>
             </div>
-            <div class="dark-right">
-                <h2 class="dark-header">Background</h2>
-                <p class="dark-body">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
-            </div>
         </div>
     </section>
+    <!-- Lightbox Overlay -->
+    <div id="lightbox-overlay">
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
         <a href="ecclesiastes-3-4.html" class="nav-prev">Ecclesiastes 3:4</a>
@@ -404,13 +457,10 @@
             const peekHeight = Math.round(vh * 0.03);
             const progress = Math.max(0, Math.min(1, window.scrollY / (darkPlaceholderTop * 0.6)));
             dark.style.transform = 'translateY(' + ((vh - peekHeight) * (1 - progress)) + 'px)';
-            // Float: shadow above the panel grows with progress
-            const sBlur = Math.round(50 * progress);
-            const sOpacity = (0.45 * progress).toFixed(2);
-            dark.style.boxShadow = '0 -' + Math.round(20 * progress) + 'px ' + sBlur + 'px rgba(0,0,0,' + sOpacity + ')';
-            // Blur the content so it reads as blurred beneath the glass
+            // Blur starts only in the second half of scroll so scripture can be read first
+            const blurProgress = Math.max(0, Math.min(1, (progress - 0.5) / 0.5));
             const content = document.querySelector('.content');
-            if (content) content.style.filter = 'blur(' + (12 * Math.sqrt(progress)).toFixed(1) + 'px)';
+            if (content) content.style.filter = 'blur(' + (20 * Math.sqrt(blurProgress)).toFixed(1) + 'px)';
         }
 
         window.addEventListener('scroll', onScroll);
@@ -422,6 +472,29 @@
         initDarkSectionOffset();
         initDarkFixed();
         onScroll();
+
+        // --- Lightbox ---
+        (function() {
+            const overlay = document.getElementById('lightbox-overlay');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const wraps = document.querySelectorAll('.dark-img-wrap');
+            if (!overlay || !wraps.length) return;
+
+            wraps.forEach(function(wrap) {
+                const srcImg = wrap.querySelector('img');
+                if (!srcImg) return;
+                wrap.addEventListener('click', function() {
+                    lightboxImg.src = srcImg.src;
+                    overlay.classList.add('active');
+                });
+            });
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target !== lightboxImg) {
+                    overlay.classList.remove('active');
+                }
+            });
+        })();
 
         // --- Footnote system ---
         (function() {

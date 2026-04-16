@@ -29,7 +29,7 @@
             display: flex;
             justify-content: space-between;
             box-sizing: border-box;
-            z-index: 1000;
+            z-index: 1003;
         }
 
         .nav-btn {
@@ -98,15 +98,15 @@
         }
 
         .body-text {
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 400;
             line-height: 1.3;
         }
 
         /* Dark image section */
         .dark-section {
-            background: #1a1a1a;
-            color: #e8e8e8;
+            background: transparent;
+            color: #333;
             padding: 80px 200px 80px 140px;
             position: relative;
             overflow: visible;
@@ -121,31 +121,54 @@
         }
 
         .dark-img-wrap {
-            flex: 1;
+            flex: 1.43;
             position: relative;
+            display: grid;
+            cursor: pointer;
         }
 
         .dark-img-wrap img {
+            grid-area: 1 / 1;
             width: 100%;
             height: auto;
             display: block;
             will-change: transform;
             position: relative;
             z-index: 2;
-            transition: transform 0.1s linear;
+            transition: transform 0.1s linear, opacity 0.3s ease;
         }
 
         .image-caption {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: #999;
-            line-height: 1.4;
-            margin-top: 16px;
+            grid-area: 1 / 1;
+            height: 100%;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 2px solid #1a1a1a;
+            background: #e8e8e8;
+            padding: 2rem;
+            font-size: 2rem;
+            font-weight: 500;
+            line-height: 1.0;
+            color: #333;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .dark-img-wrap:hover img {
+            opacity: 0;
+        }
+
+        .dark-img-wrap:hover .image-caption {
+            opacity: 1;
         }
 
         .dark-right {
             flex: 1.5;
-            color: #e8e8e8;
+            color: #333;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
@@ -155,23 +178,24 @@
             font-size: 2.5rem;
             font-weight: 500;
             line-height: 1.1;
-            color: #e8e8e8;
+            color: #333;
+            margin-bottom: 40px;
         }
 
         .dark-subtitle {
             font-size: 1.8rem;
             font-weight: 100;
             line-height: 1.3;
-            color: #e8e8e8;
+            color: #333;
             margin-top: 8px;
             margin-bottom: 60px;
         }
 
         .dark-body {
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 400;
             line-height: 1.3;
-            color: #e8e8e8;
+            color: #333;
         }
 
         /* Underlined words are clickable */
@@ -199,16 +223,16 @@
 
         .footnote-anchor {
             display: block;
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 600;
             line-height: 1.1;
             text-decoration: underline;
-            margin-bottom: 4px;
+            margin-bottom: 14px;
             color: #333;
         }
 
         .footnote-text {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 400;
             line-height: 1.2;
             color: #333;
@@ -225,6 +249,7 @@
             right: 0;
             bottom: 0;
             pointer-events: none;
+            z-index: 1002;
         }
 
         .nav-prev, .nav-next {
@@ -258,6 +283,33 @@
             opacity: 0.5;
         }
 
+        /* Lightbox */
+        #lightbox-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #lightbox-overlay.active {
+            display: flex;
+        }
+
+        #lightbox-overlay img {
+            max-height: calc(100vh - 80px);
+            max-width: calc(100vw - 80px);
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            cursor: default;
+        }
+
         /* Scroll Fade */
         .top-left,
         .top-right,
@@ -269,8 +321,8 @@
 <body>
     <!-- Fixed Header -->
     <header class="page-header">
-        <a href="index.html#textPage" class="nav-btn">Text</a>
         <a href="index.html#testimoniesPage" class="nav-btn">Testimony</a>
+        <a href="index.html#textPage" class="nav-btn">Text</a>
     </header>
 
     <!-- Main Content -->
@@ -300,12 +352,16 @@
             <div class="dark-right">
                 <div>
                     <h2 class="dark-header">Job Rebuked by His Friends</h2>
-                    <p class="dark-subtitle">William Blake</p>
                 </div>
                 <p class="dark-body">Job&#8217;s three friends, Eliphaz, Bildad, and Zophar, have historically been known for offering lengthy speeches that resulted in their being condemned by God (Job 42:7&#8211;9). At one point Job, weary of their unhelpful rhetoric, told them, &#8220;You are miserable comforters, all of you!&#8221; (Job 16:2). But did they get everything wrong? Perhaps they got a few things right.<br><br>The artwork depicts the scene where Job&#8217;s friends offer him unhelpful advice and moral judgments, reflecting Blake&#8217;s interpretation that Job&#8217;s suffering came from a rigid adherence to the letter of God&#8217;s law rather than its spirit.</p>
             </div>
         </div>
     </section>
+    <!-- Lightbox Overlay -->
+    <div id="lightbox-overlay">
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
     <!-- Previous/Next Navigation -->
     <nav class="scripture-nav">
         <a href="job-5-22.html" class="nav-prev">Job 5:22</a>
@@ -416,13 +472,9 @@
             const peekHeight = Math.round(vh * 0.03);
             const progress = Math.max(0, Math.min(1, window.scrollY / (darkPlaceholderTop * 0.6)));
             dark.style.transform = 'translateY(' + ((vh - peekHeight) * (1 - progress)) + 'px)';
-            // Float: shadow above the panel grows with progress
-            const sBlur = Math.round(50 * progress);
-            const sOpacity = (0.45 * progress).toFixed(2);
-            dark.style.boxShadow = '0 -' + Math.round(20 * progress) + 'px ' + sBlur + 'px rgba(0,0,0,' + sOpacity + ')';
-            // Blur the content so it reads as blurred beneath the glass
+            // Blur the content so the overlaid text is readable
             const content = document.querySelector('.content');
-            if (content) content.style.filter = 'blur(' + (12 * Math.sqrt(progress)).toFixed(1) + 'px)';
+            if (content) content.style.filter = 'blur(' + (20 * Math.sqrt(progress)).toFixed(1) + 'px)';
         }
 
         window.addEventListener('scroll', onScroll);
@@ -434,6 +486,29 @@
         initDarkSectionOffset();
         initDarkFixed();
         onScroll();
+
+        // --- Lightbox ---
+        (function() {
+            const overlay = document.getElementById('lightbox-overlay');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const wraps = document.querySelectorAll('.dark-img-wrap');
+            if (!overlay || !wraps.length) return;
+
+            wraps.forEach(function(wrap) {
+                const srcImg = wrap.querySelector('img');
+                if (!srcImg) return;
+                wrap.addEventListener('click', function() {
+                    lightboxImg.src = srcImg.src;
+                    overlay.classList.add('active');
+                });
+            });
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target !== lightboxImg) {
+                    overlay.classList.remove('active');
+                }
+            });
+        })();
 
         // --- Footnote system ---
         (function() {
